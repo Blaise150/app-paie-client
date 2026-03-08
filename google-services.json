@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "978291133411",
+    "project_id": "app-paie-client",
+    "storage_bucket": "app-paie-client.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:978291133411:android:27d970977321acc03faed6",
+        "android_client_info": {
+          "package_name": "com.blaise.apppaieclient"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAxWfyDVlaAr4qmLJdlzM8mwMSzRfkLizc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
