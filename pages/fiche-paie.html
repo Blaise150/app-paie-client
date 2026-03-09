@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>App Paie — Fiche de Paie</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+
+  <!-- ── NAVBAR ── -->
+  <nav>
+    <div class="logo"> App<span>Paie</span></div>
+    <ul>
+      <li><a href="dashboard.html"> Tableau de bord</a></li>
+      <li><a href="employes.html"> Employés</a></li>
+      <li><a href="fiche-paie.html" class="active">Fiche de paie</a></li>
+    </ul>
+    <div class="nav-right">
+      <span id="user-email"></span>
+      <button class="btn-deconnexion" id="btn-logout">Déconnexion</button>
+    </div>
+  </nav>
+
+  <main>
+    <h2 style="margin-bottom:1.5rem;"> Génération de la Fiche de Paie</h2>
+
+    <!-- ── FORMULAIRE ── -->
+    <div class="card">
+      <h2>⚙️ Paramètres de la paie</h2>
+      <form id="form-paie">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Employé *</label>
+            <select id="select-employe" required>
+              <option value="">Chargement...</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Période (mois) *</label>
+            <input type="month" id="periode" required />
+          </div>
+          <div class="form-group">
+            <label>Heures supplémentaires</label>
+            <input type="number" id="heures-supp" placeholder="0" min="0" value="0" />
+          </div>
+          <div class="form-group">
+            <label>Primes (€)</label>
+            <input type="number" id="primes" placeholder="0" min="0" value="0" />
+          </div>
+          <div class="form-group">
+            <label>Absences (heures)</label>
+            <input type="number" id="absences" placeholder="0" min="0" value="0" />
+          </div>
+        </div>
+        <br />
+        <button type="submit" class="btn btn-primaire">🔢 Calculer la fiche de paie</button>
+      </form>
+    </div>
+
+    <!-- ── FICHE DE PAIE GÉNÉRÉE ── -->
+    <div id="fiche-paie">
+
+      <!-- En-tête fiche -->
+      <div class="fiche-header">
+        <div>
+          <h2>FICHE DE PAIE</h2>
+          <div class="fiche-employe">
+            <strong id="fiche-nom"></strong><br>
+            <span id="fiche-poste"></span>
+          </div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:0.85rem; color:#6b7280;">Période</div>
+          <div style="font-weight:700;" id="fiche-periode"></div>
+          <div style="font-size:0.75rem; margin-top:0.5rem; color:#6b7280;">
+            Généré le : <span id="fiche-date"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── GAINS ── -->
+      <div class="fiche-section-title"> GAINS</div>
+      <div class="fiche-ligne">
+        <span>Salaire de base</span>
+        <span><span id="fiche-base"></span> €</span>
+      </div>
+      <div class="fiche-ligne">
+        <span>Heures supplémentaires (×1.5)</span>
+        <span><span id="fiche-hsup"></span>€</span>
+      </div>
+      <div class="fiche-ligne">
+        <span>Primes</span>
+        <span><span id="fiche-primes"></span> €</span>
+      </div>
+      <div class="fiche-ligne rouge-text">
+        <span>Déductions absences</span>
+        <span>- <span id="fiche-absences"></span> €</span>
+      </div>
+      <div class="fiche-ligne total">
+        <span>SALAIRE BRUT</span>
+        <span><span id="fiche-brut"></span> €</span>
+      </div>
+
+      <!-- ── RETENUES ── -->
+      <div class="fiche-section-title" style="color:#c81e1e;"> RETENUES</div>
+      <div class="fiche-ligne rouge-text">
+        <span>CNSS Employé (3.6%)</span>
+        <span>- <span id="fiche-cnss"></span> €</span>
+      </div>
+      <div class="fiche-ligne rouge-text">
+        <span>Mutuelle santé</span>
+        <span>- <span id="fiche-mutuelle"></span>€</span>
+      </div>
+      <div class="fiche-ligne rouge-text">
+        <span>IRPP (barème progressif)</span>
+        <span>- <span id="fiche-irpp"></span> €</span>
+      </div>
+      <div class="fiche-ligne total rouge-text">
+        <span>TOTAL RETENUES</span>
+        <span>- <span id="fiche-retenues"></span> €</span>
+      </div>
+
+      <!-- ── NET À PAYER ── -->
+      <div class="fiche-ligne net">
+        <span> NET À PAYER</span>
+        <span><span id="fiche-net"></span> €</span>
+      </div>
+
+      <!-- Boutons actions -->
+      <div style="display:flex; gap:1rem; margin-top:1.5rem; flex-wrap:wrap;">
+        <button class="btn btn-vert" id="btn-sauvegarder"> Sauvegarder</button>
+        <button class="btn btn-primaire" onclick="imprimerFiche()"> Imprimer</button>
+      </div>
+
+    </div>
+  </main>
+
+  <script type="module">
+    import "../js/paie.js";
+    import { deconnexion } from "../js/auth.js";
+    document.getElementById("btn-logout").addEventListener("click", deconnexion);
+    document.getElementById("fiche-date").textContent =
+      new Date().toLocaleDateString("fr-FR");
+  </script>
+</body>
+</html>

@@ -1,0 +1,261 @@
+/* ============================================
+   style.css — Application de Paie
+   ============================================ */
+
+/* ── Variables & Reset ───────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bleu:        #1a56db;
+  --bleu-dark:   #1341b5;
+  --vert:        #057a55;
+  --rouge:       #c81e1e;
+  --orange:      #d03801;
+  --gris-bg:     #f3f4f6;
+  --gris-border: #e5e7eb;
+  --gris-text:   #6b7280;
+  --noir:        #111827;
+  --blanc:       #ffffff;
+  --shadow:      0 4px 6px -1px rgba(0,0,0,.1);
+  --radius:      10px;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: var(--gris-bg);
+  color: var(--noir);
+  min-height: 100vh;
+}
+
+/* ── NAVBAR ──────────────────────────────── */
+nav {
+  background: var(--bleu);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  height: 60px;
+  box-shadow: var(--shadow);
+}
+nav .logo { font-size: 1.3rem; font-weight: 700; letter-spacing: 0.5px; }
+nav .logo span { color: #93c5fd; }
+nav ul { display: flex; gap: 0.5rem; list-style: none; }
+nav ul a {
+  color: rgba(255,255,255,.85);
+  text-decoration: none;
+  padding: 0.4rem 0.9rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  transition: background .2s;
+}
+nav ul a:hover, nav ul a.active { background: rgba(255,255,255,.2); color: white; }
+nav .nav-right { display: flex; align-items: center; gap: 1rem; font-size: 0.85rem; }
+nav .btn-deconnexion {
+  background: rgba(255,255,255,.15);
+  border: 1px solid rgba(255,255,255,.3);
+  color: white;
+  padding: 0.35rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+nav .btn-deconnexion:hover { background: rgba(255,255,255,.25); }
+
+/* ── LAYOUT ──────────────────────────────── */
+main { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+/* ── PAGE LOGIN ──────────────────────────── */
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1a56db 0%, #1341b5 50%, #0f2d7a 100%);
+}
+.login-card {
+  background: white;
+  padding: 2.5rem;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  width: 100%;
+  max-width: 420px;
+}
+.login-card h1 {
+  text-align: center;
+  color: var(--bleu);
+  font-size: 1.6rem;
+  margin-bottom: 0.5rem;
+}
+.login-card .subtitle {
+  text-align: center;
+  color: var(--gris-text);
+  font-size: 0.9rem;
+  margin-bottom: 2rem;
+}
+
+/* ── CARDS / STATS DASHBOARD ─────────────── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+.stat-card {
+  background: white;
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+.stat-card .icone {
+  width: 52px; height: 52px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem;
+}
+.stat-card .icone.bleu   { background: #dbeafe; }
+.stat-card .icone.vert   { background: #d1fae5; }
+.stat-card .icone.orange { background: #fee3d0; }
+.stat-card .icone.violet { background: #ede9fe; }
+.stat-card h3 { font-size: 1.6rem; font-weight: 700; }
+.stat-card p  { font-size: 0.8rem; color: var(--gris-text); }
+
+/* ── FORMULAIRES ─────────────────────────── */
+.card {
+  background: white;
+  border-radius: var(--radius);
+  padding: 1.75rem;
+  box-shadow: var(--shadow);
+  margin-bottom: 1.5rem;
+}
+.card h2 { font-size: 1.1rem; margin-bottom: 1.25rem; color: var(--noir); }
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+.form-group { display: flex; flex-direction: column; gap: 0.35rem; }
+.form-group label { font-size: 0.8rem; font-weight: 600; color: var(--gris-text); text-transform: uppercase; }
+.form-group input, .form-group select {
+  padding: 0.65rem 0.9rem;
+  border: 1.5px solid var(--gris-border);
+  border-radius: 7px;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color .2s;
+}
+.form-group input:focus, .form-group select:focus { border-color: var(--bleu); }
+
+/* ── BOUTONS ─────────────────────────────── */
+.btn {
+  padding: 0.65rem 1.4rem;
+  border: none;
+  border-radius: 7px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s;
+}
+.btn-primaire { background: var(--bleu); color: white; }
+.btn-primaire:hover { background: var(--bleu-dark); }
+.btn-vert { background: var(--vert); color: white; }
+.btn-vert:hover { background: #046946; }
+.btn-rouge { background: var(--rouge); color: white; }
+.btn-modifier { background: #fef3c7; color: #92400e; border: none; border-radius: 5px; padding: 0.3rem 0.6rem; cursor: pointer; }
+.btn-supprimer { background: #fee2e2; color: #991b1b; border: none; border-radius: 5px; padding: 0.3rem 0.6rem; cursor: pointer; }
+
+/* ── TABLEAU EMPLOYÉS ────────────────────── */
+.table-container { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+thead { background: var(--gris-bg); }
+th { padding: 0.75rem 1rem; text-align: left; font-size: 0.75rem; font-weight: 700; color: var(--gris-text); text-transform: uppercase; border-bottom: 1px solid var(--gris-border); }
+td { padding: 0.85rem 1rem; border-bottom: 1px solid var(--gris-border); }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #f9fafb; }
+
+/* ── FICHE DE PAIE ───────────────────────── */
+#fiche-paie {
+  background: white;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 2rem;
+  margin-top: 1.5rem;
+  display: none;
+}
+.fiche-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--bleu);
+}
+.fiche-header h2 { color: var(--bleu); font-size: 1.3rem; }
+.fiche-employe   { font-size: 0.9rem; color: var(--gris-text); }
+.fiche-ligne {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--gris-border);
+  font-size: 0.9rem;
+}
+.fiche-ligne.total {
+  font-weight: 700;
+  font-size: 1rem;
+  background: var(--gris-bg);
+  padding: 0.75rem 0.5rem;
+  border-radius: 5px;
+  margin-top: 0.5rem;
+  border: none;
+}
+.fiche-ligne.net {
+  font-weight: 800;
+  font-size: 1.15rem;
+  color: var(--vert);
+  background: #d1fae5;
+  padding: 0.75rem 0.5rem;
+  border-radius: 5px;
+  margin-top: 0.5rem;
+  border: none;
+}
+.fiche-section-title {
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  color: var(--gris-text);
+  padding: 1rem 0 0.3rem;
+  letter-spacing: 0.5px;
+}
+.rouge-text { color: var(--rouge); }
+
+/* ── NOTIFICATIONS ───────────────────────── */
+.notification {
+  padding: 0.75rem 1rem;
+  border-radius: 7px;
+  margin-bottom: 1rem;
+  display: none;
+  font-weight: 500;
+}
+.notification.succes { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+.notification.erreur { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+
+/* ── ERREUR LOGIN ────────────────────────── */
+#erreur {
+  background: #fee2e2;
+  color: #991b1b;
+  padding: 0.6rem 0.9rem;
+  border-radius: 6px;
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+  display: none;
+}
+
+/* ── PRINT ───────────────────────────────── */
+@media print {
+  nav, .card:not(#fiche-paie), .btn { display: none !important; }
+  #fiche-paie { box-shadow: none !important; }
+}

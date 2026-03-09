@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>App Paie — Tableau de bord</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+
+  <!-- ── NAVBAR ── -->
+  <nav>
+    <div class="logo">💼 App<span>Paie</span></div>
+    <ul>
+      <li><a href="dashboard.html" class="active">Tableau de bord</a></li>
+      <li><a href="employes.html"> Employés</a></li>
+      <li><a href="fiche-paie.html"> Fiche de paie</a></li>
+    </ul>
+    <div class="nav-right">
+      <span id="user-email"></span>
+      <button class="btn-deconnexion" id="btn-logout">Déconnexion</button>
+    </div>
+  </nav>
+
+  <main>
+    <h2 style="margin-bottom:1.5rem;">📊 Tableau de bord</h2>
+
+    <!-- ── CARTES STATISTIQUES ── -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="icone bleu">👥</div>
+        <div>
+          <h3 id="stat-employes">—</h3>
+          <p>Employés actifs</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="icone vert">💰</div>
+        <div>
+          <h3 id="stat-masse">—</h3>
+          <p>Masse salariale brute</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="icone orange">📄</div>
+        <div>
+          <h3 id="stat-fiches">—</h3>
+          <p>Fiches générées</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="icone violet">📅</div>
+        <div>
+          <h3 id="stat-mois">—</h3>
+          <p>Période en cours</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ACCÈS RAPIDES ── -->
+    <div class="card">
+      <h2>⚡ Accès rapides</h2>
+      <div style="display:flex; gap:1rem; flex-wrap:wrap;">
+        <a href="employes.html"><button class="btn btn-primaire">➕ Ajouter un employé</button></a>
+        <a href="fiche-paie.html"><button class="btn btn-vert">📄 Générer une fiche de paie</button></a>
+      </div>
+    </div>
+
+    <!-- ── DERNIERS EMPLOYÉS ── -->
+    <div class="card">
+      <h2>👥 Derniers employés ajoutés</h2>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Nom</th>
+              <th>Prénom</th>
+              <th>Poste</th>
+              <th>Salaire de base</th>
+            </tr>
+          </thead>
+          <tbody id="tableau-recent"></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { auth, db } from "../js/firebase-config.js";
+    import { verifierConnexion, deconnexion } from "../js/auth.js";
+    import {
+      collection, getDocs, query, orderBy, limit
+    } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+    verifierConnexion();
+
+    document.getElementById("btn-logout").addEventListener("click", deconnexion);
+
+    // Mois en cours
+    const mois = new Date().toLocaleString("fr-FR", { month: "long", year: "numeric" });
+    document.getElementById("stat-mois").textContent = mois;
+
+    // Charger stats & derniers employés
+    async function chargerDashboard() {
+      const snapshot = await getDocs(query(collection(db, "employes"), orderBy("createdAt", "desc"), limit(5)));
+      const tous = await getDocs(collection(db, "employes"));
+
+      document.getElementById("stat-employes").textContent = tous.size;
+
+      let masse = 0;
+      tous.forEach(d => masse += Number(d.data().salaireBase || 0));
+      document.getElementById("stat-masse").textContent =
+        masse.toLocaleString("fr-FR") + "€";
+
+      const fiches = await getDocs(collection(db, "fiches-paie"));
+      document.getElementById("stat-fiches").textContent = fiches.size;
+
+      const tbody = document.getElementById("tableau-recent");
+      tbody.innerHTML = "";
+      snapshot.forEach(d => {
+        const e = d.data();
+        tbody.innerHTML += `
+          <tr>
+            <td>${e.nom}</td>
+            <td>${e.prenom}</td>
+            <td>${e.poste}</td>
+            <td>${Number(e.salaireBase).toLocaleString("fr-FR")} €</td>
+          </tr>`;
+      });
+    }
+
+    chargerDashboard();
+  </script>
+</body>
+</html>

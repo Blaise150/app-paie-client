@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>App Paie — Connexion</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .form-group input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 1rem;
+      outline: none;
+    }
+    .form-group input:focus { border-color: #1a56db; }
+    .btn-login {
+      width: 100%;
+      padding: 0.85rem;
+      background: #1a56db;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+    .btn-login:hover { background: #1341b5; }
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.4rem; color: #374151; }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-card">
+
+      <!-- Logo -->
+      <div style="text-align:center; font-size:2.5rem; margin-bottom:0.5rem;"></div>
+      <h1>App de Paie</h1>
+      <p class="subtitle">Connectez-vous pour accéder au système</p>
+
+      <!-- Formulaire -->
+      <form id="form-login">
+        <div class="form-group">
+          <label for="email">Adresse e-mail</label>
+          <input type="email" id="email" placeholder="admin@entreprise.com" required />
+        </div>
+        <div class="form-group">
+          <label for="motdepasse">Mot de passe</label>
+          <input type="password" id="motdepasse" placeholder="••••••••" required />
+        </div>
+        <div id="erreur"></div>
+        <button type="submit" class="btn-login"> Se connecter</button>
+      </form>
+
+    </div>
+  </div>
+
+  <!-- Firebase Auth -->
+  <script type="module" src="js/auth.js"></script>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>App Paie — Employés</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+
+  <!-- ── NAVBAR ── -->
+  <nav>
+    <div class="logo">App<span>Paie</span></div>
+    <ul>
+      <li><a href="dashboard.html">Tableau de bord</a></li>
+      <li><a href="employes.html" class="active"> Employés</a></li>
+      <li><a href="fiche-paie.html"> Fiche de paie</a></li>
+    </ul>
+    <div class="nav-right">
+      <span id="user-email"></span>
+      <button class="btn-deconnexion" id="btn-logout">Déconnexion</button>
+    </div>
+  </nav>
+
+  <main>
+    <h2 style="margin-bottom:1.5rem;">Gestion des Employés</h2>
+
+    <!-- Notification -->
+    <div id="notification" class="notification"></div>
+
+    <!-- ── FORMULAIRE AJOUT ── -->
+    <div class="card">
+      <h2>➕ Ajouter un employé</h2>
+      <form id="form-employe">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Nom *</label>
+            <input type="text" id="nom" placeholder="DUPONT" required />
+          </div>
+          <div class="form-group">
+            <label>Prénom *</label>
+            <input type="text" id="prenom" placeholder="Jean" required />
+          </div>
+          <div class="form-group">
+            <label>Poste *</label>
+            <input type="text" id="poste" placeholder="Comptable" required />
+          </div>
+          <div class="form-group">
+            <label>Département *</label>
+            <select id="departement" required>
+              <option value="">-- Choisir --</option>
+              <option>Direction</option>
+              <option>Comptabilité</option>
+              <option>RH</option>
+              <option>Informatique</option>
+              <option>Commercial</option>
+              <option>Production</option>
+              <option>Logistique</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Salaire de base (FCFA) *</label>
+            <input type="number" id="salaire" placeholder="150000" min="0" required />
+          </div>
+          <div class="form-group">
+            <label>N° CNSS</label>
+            <input type="text" id="cnss" placeholder="12345678" />
+          </div>
+          <div class="form-group">
+            <label>Date d'embauche *</label>
+            <input type="date" id="dateEmbauche" required />
+          </div>
+        </div>
+        <br />
+        <button type="submit" class="btn btn-primaire">Enregistrer l'employé</button>
+      </form>
+    </div>
+
+    <!-- ── TABLEAU EMPLOYÉS ── -->
+    <div class="card">
+      <h2>📋 Liste des employés</h2>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Nom</th>
+              <th>Prénom</th>
+              <th>Poste</th>
+              <th>Département</th>
+              <th>Salaire de base</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tableau-employes">
+            <tr>
+              <td colspan="6" style="text-align:center; color:#6b7280;">
+                Chargement...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import "../js/employes.js";
+    import { deconnexion } from "../js/auth.js";
+    document.getElementById("btn-logout").addEventListener("click", deconnexion);
+  </script>
+</body>
+</html>
