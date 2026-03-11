@@ -1,135 +1,399 @@
+<!-- ================================================================
+     pages/dashboard.html — MyPaie Application
+     Tableau de bord principal
+     Dépendances : ../css/style.css · Chart.js CDN
+                   ../js/firebase-config.js · ../js/auth.js
+     ================================================================ -->
 <!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>App Paie — Tableau de bord</title>
+  <title>MyPaie — Tableau de bord</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 </head>
 <body>
 
   <!-- ── NAVBAR ── -->
   <nav>
-    <div class="logo">💼 App<span>Paie</span></div>
-    <ul>
-      <li><a href="dashboard.html" class="active">Tableau de bord</a></li>
-      <li><a href="employes.html"> Employés</a></li>
-      <li><a href="fiche-paie.html"> Fiche de paie</a></li>
-    </ul>
-    <div class="nav-right">
-      <span id="user-email"></span>
-      <button class="btn-deconnexion" id="btn-logout">Déconnexion</button>
+    <div class="nav-top">
+      <button class="hamburger" id="hamburger">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="logo">My<span>paie</span></div>
+      <ul class="nav-links" id="nav-menu">
+        <li><a href="dashboard.html" class="active">🏠 Tableau de bord</a></li>
+        <li><a href="employes.html">👥 Employés</a></li>
+        <li><a href="fiche-paie.html">📄 Fiche de paie</a></li>
+      </ul>
+      <div class="nav-right">
+        <span id="user-email"></span>
+        <button class="btn-deconnexion" id="btn-logout">🔓 Déconnexion</button>
+      </div>
     </div>
   </nav>
 
-  <main>
-    <h2 style="margin-bottom:1.5rem;">📊 Tableau de bord</h2>
+  <script>
+    window.addEventListener("DOMContentLoaded", () => {
+      const hamburger = document.getElementById("hamburger");
+      const navMenu   = document.getElementById("nav-menu");
+      hamburger.addEventListener("click", (e) => { e.stopPropagation(); navMenu.classList.toggle("ouvert"); });
+      navMenu.querySelectorAll("a").forEach(a => a.addEventListener("click", () => navMenu.classList.remove("ouvert")));
+      document.addEventListener("click", () => navMenu.classList.remove("ouvert"));
+    });
+  </script>
 
-    <!-- ── CARTES STATISTIQUES ── -->
+  <!-- Notification toast -->
+  <div class="notif" id="notif"></div>
+
+  <!-- ── MODAL MODIFICATION EMPLOYÉ ── -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+      <h3>✏️ Modifier l'employé</h3>
+      <input type="hidden" id="edit-id" />
+      <div class="modal-grid">
+        <div><label>Nom *</label><input type="text"   id="edit-nom" /></div>
+        <div><label>Prénom *</label><input type="text" id="edit-prenom" /></div>
+        <div><label>Email</label><input type="email"  id="edit-email" /></div>
+        <div><label>Téléphone</label><input type="tel" id="edit-tel" /></div>
+        <div><label>Poste *</label><input type="text"  id="edit-poste" /></div>
+        <div>
+          <label>Département</label>
+          <select id="edit-dept">
+            <option>Direction</option><option>Comptabilité</option><option>RH</option>
+            <option>Informatique</option><option>Commercial</option>
+            <option>Production</option><option>Logistique</option>
+          </select>
+        </div>
+        <div>
+          <label>Type de contrat</label>
+          <select id="edit-contrat">
+            <option value="CDI Temps plein">CDI — Temps plein</option>
+            <option value="CDI Temps partiel">CDI — Temps partiel</option>
+            <option value="CDD">CDD</option>
+            <option value="Intérimaire">Intérimaire</option>
+          </select>
+        </div>
+        <div><label>Date d'entrée</label><input type="date"   id="edit-date-entree" /></div>
+        <div>
+          <label>Statut</label>
+          <select id="edit-statut">
+            <option value="Actif">Actif</option>
+            <option value="Inactif">Inactif</option>
+          </select>
+        </div>
+        <div><label>Salaire de base (€) *</label><input type="number" id="edit-salaire" min="0" /></div>
+        <div><label>N° Sécurité sociale</label><input type="text"     id="edit-nss" /></div>
+        <div><label>IBAN</label><input type="text"                     id="edit-iban" /></div>
+        <div class="full"><label>Adresse</label><input type="text"    id="edit-adresse" /></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" id="btn-cancel-modal">Annuler</button>
+        <button class="btn-save"   id="btn-save-modal">💾 Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
+  <main>
+    <h2>🏠 Tableau de bord</h2>
+
+    <!-- Cartes statistiques -->
     <div class="stats-grid">
-      <div class="stat-card">
+      <a href="employes.html" class="stat-card">
         <div class="icone bleu">👥</div>
         <div>
           <h3 id="stat-employes">—</h3>
           <p>Employés actifs</p>
+          <span class="trend info">Voir la liste →</span>
         </div>
-      </div>
-      <div class="stat-card">
+      </a>
+      <a href="fiche-paie.html" class="stat-card">
         <div class="icone vert">💰</div>
         <div>
           <h3 id="stat-masse">—</h3>
           <p>Masse salariale brute</p>
+          <span class="trend up">Générer une fiche →</span>
         </div>
-      </div>
-      <div class="stat-card">
+      </a>
+      <a href="fiche-paie.html" class="stat-card">
         <div class="icone orange">📄</div>
         <div>
           <h3 id="stat-fiches">—</h3>
           <p>Fiches générées</p>
+          <span class="trend info">Voir les fiches →</span>
         </div>
-      </div>
+      </a>
       <div class="stat-card">
-        <div class="icone violet">📅</div>
+        <div class="icone rose">📅</div>
         <div>
-          <h3 id="stat-mois">—</h3>
+          <h3 id="stat-mois" class="stat-mois-txt">—</h3>
           <p>Période en cours</p>
+          <span class="trend info" id="stat-fiches-mois">— fiches ce mois</span>
         </div>
       </div>
     </div>
 
-    <!-- ── ACCÈS RAPIDES ── -->
-    <div class="card">
-      <h2>⚡ Accès rapides</h2>
-      <div style="display:flex; gap:1rem; flex-wrap:wrap;">
-        <a href="employes.html"><button class="btn btn-primaire">➕ Ajouter un employé</button></a>
-        <a href="fiche-paie.html"><button class="btn btn-vert">📄 Générer une fiche de paie</button></a>
+    <!-- Graphiques + accès rapides -->
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-header">
+          <h2>📊 Masse salariale par département</h2>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="chart-dept"></canvas>
+        </div>
+      </div>
+      <div class="card card-flex-col">
+        <div>
+          <div class="card-header"><h2>⚡ Accès rapides</h2></div>
+          <div class="quick-links">
+            <a href="employes.html"  class="btn btn-primaire">👤 Ajouter un employé</a>
+            <a href="fiche-paie.html" class="btn btn-vert">📄 Générer une fiche de paie</a>
+          </div>
+        </div>
+        <div class="chart-second-wrap">
+          <div class="card-header"><h2>📈 Répartition contrats</h2></div>
+          <div class="chart-wrap chart-wrap-sm">
+            <canvas id="chart-contrats"></canvas>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- ── DERNIERS EMPLOYÉS ── -->
+    <!-- Derniers employés ajoutés -->
     <div class="card">
-      <h2>👥 Derniers employés ajoutés</h2>
+      <div class="card-header">
+        <h2>👥 Derniers employés ajoutés</h2>
+        <a href="employes.html">Voir tous →</a>
+      </div>
       <div class="table-container">
         <table>
           <thead>
             <tr>
-              <th>Nom</th>
-              <th>Prénom</th>
+              <th>Nom & Prénom</th>
               <th>Poste</th>
-              <th>Salaire de base</th>
+              <th>Département</th>
+              <th>Contrat</th>
+              <th>Statut</th>
+              <th>Email</th>
+              <th>Salaire</th>
+              <th>Actions</th>
             </tr>
           </thead>
-          <tbody id="tableau-recent"></tbody>
+          <tbody id="tableau-recent">
+            <tr><td colspan="8" class="td-center td-muted">Chargement...</td></tr>
+          </tbody>
         </table>
       </div>
     </div>
   </main>
 
   <script type="module">
-    import { auth, db } from "../js/firebase-config.js";
+    import { db } from "../js/firebase-config.js";
     import { verifierConnexion, deconnexion } from "../js/auth.js";
     import {
-      collection, getDocs, query, orderBy, limit
+      collection, getDocs, getDoc, updateDoc, deleteDoc,
+      doc, query, orderBy, limit
     } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
     verifierConnexion();
-
     document.getElementById("btn-logout").addEventListener("click", deconnexion);
 
-    // Mois en cours
-    const mois = new Date().toLocaleString("fr-FR", { month: "long", year: "numeric" });
-    document.getElementById("stat-mois").textContent = mois;
+    const maintenant = new Date();
+    const moisNom = maintenant.toLocaleString("fr-FR", { month: "long", year: "numeric" });
+    document.getElementById("stat-mois").textContent =
+      moisNom.charAt(0).toUpperCase() + moisNom.slice(1);
 
-    // Charger stats & derniers employés
+    /* ── Notification ── */
+    function notif(msg, type = "succes") {
+      const el = document.getElementById("notif");
+      el.textContent = msg;
+      el.className = `notif ${type}`;
+      el.style.display = "block";
+      setTimeout(() => el.style.display = "none", 3500);
+    }
+
+    /* ── Helpers badges ── */
+    function badgeContrat(c) {
+      if (!c) return "—";
+      const cls = c.startsWith("CDI") ? "badge-cdi" : c === "CDD" ? "badge-cdd" : "badge-interim";
+      return `<span class="badge ${cls}">${c}</span>`;
+    }
+    function badgeStatut(s) {
+      return `<span class="badge ${s === "Actif" ? "badge-actif" : "badge-inactif"}">${s || "—"}</span>`;
+    }
+
+    /* ── Chargement dashboard ── */
     async function chargerDashboard() {
-      const snapshot = await getDocs(query(collection(db, "employes"), orderBy("createdAt", "desc"), limit(5)));
-      const tous = await getDocs(collection(db, "employes"));
+      const [snapAll, snapRecent, snapFiches] = await Promise.all([
+        getDocs(collection(db, "employes")),
+        getDocs(query(collection(db, "employes"), orderBy("createdAt", "desc"), limit(8))),
+        getDocs(collection(db, "fiches-paie")),
+      ]);
 
-      document.getElementById("stat-employes").textContent = tous.size;
+      let actifs = 0, masse = 0;
+      const deptMasse = {}, contrats = { CDI: 0, CDD: 0, "Intérimaire": 0 };
 
-      let masse = 0;
-      tous.forEach(d => masse += Number(d.data().salaireBase || 0));
-      document.getElementById("stat-masse").textContent =
-        masse.toLocaleString("fr-FR") + "€";
+      snapAll.forEach(d => {
+        const e = d.data();
+        if (e.statut !== "Inactif") actifs++;
+        masse += Number(e.salaireBase || 0);
+        const dept = e.departement || "Autre";
+        deptMasse[dept] = (deptMasse[dept] || 0) + Number(e.salaireBase || 0);
+        if (e.typeContrat?.startsWith("CDI")) contrats.CDI++;
+        else if (e.typeContrat === "CDD") contrats.CDD++;
+        else if (e.typeContrat === "Intérimaire") contrats["Intérimaire"]++;
+      });
 
-      const fiches = await getDocs(collection(db, "fiches-paie"));
-      document.getElementById("stat-fiches").textContent = fiches.size;
+      document.getElementById("stat-employes").textContent = actifs;
+      document.getElementById("stat-masse").textContent    = masse.toLocaleString("fr-FR") + " €";
+      document.getElementById("stat-fiches").textContent   = snapFiches.size;
 
+      let fichesMois = 0;
+      const debutMois = new Date(maintenant.getFullYear(), maintenant.getMonth(), 1);
+      snapFiches.forEach(d => {
+        const ca = d.data().createdAt?.toDate?.();
+        if (ca && ca >= debutMois) fichesMois++;
+      });
+      document.getElementById("stat-fiches-mois").textContent = `${fichesMois} fiche(s) ce mois`;
+
+      /* Tableau récent */
       const tbody = document.getElementById("tableau-recent");
       tbody.innerHTML = "";
-      snapshot.forEach(d => {
-        const e = d.data();
+      snapRecent.forEach(d => {
+        const e = d.data(); const id = d.id;
         tbody.innerHTML += `
           <tr>
-            <td>${e.nom}</td>
-            <td>${e.prenom}</td>
-            <td>${e.poste}</td>
-            <td>${Number(e.salaireBase).toLocaleString("fr-FR")} €</td>
+            <td><strong>${e.nom} ${e.prenom}</strong></td>
+            <td>${e.poste || "—"}</td>
+            <td>${e.departement || "—"}</td>
+            <td>${badgeContrat(e.typeContrat)}</td>
+            <td>${badgeStatut(e.statut)}</td>
+            <td>${e.email ? `<a href="mailto:${e.email}">${e.email}</a>` : "—"}</td>
+            <td>${Number(e.salaireBase || 0).toLocaleString("fr-FR")} €</td>
+            <td class="td-actions">
+              <button class="btn-action btn-edit" onclick="ouvrirModal('${id}')">✏️ Modifier</button>
+              <button class="btn-action btn-del"  onclick="supprimerEmploye('${id}')">🗑️</button>
+            </td>
           </tr>`;
+      });
+
+      /* Graphique barres */
+      new Chart(document.getElementById("chart-dept"), {
+        type: "bar",
+        data: {
+          labels: Object.keys(deptMasse),
+          datasets: [{
+            label: "Masse salariale (€)",
+            data: Object.values(deptMasse),
+            backgroundColor: ["#3b82f6","#10b981","#f59e0b","#8b5cf6","#ec4899","#06b6d4","#f97316"],
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { ticks: { callback: v => v.toLocaleString("fr-FR") + " €", font: { size: 10 } }, grid: { color: "#f3f4f6" } },
+            x: { ticks: { font: { size: 10 } }, grid: { display: false } }
+          }
+        }
+      });
+
+      /* Graphique donut */
+      new Chart(document.getElementById("chart-contrats"), {
+        type: "doughnut",
+        data: {
+          labels: ["CDI", "CDD", "Intérimaire"],
+          datasets: [{
+            data: [contrats.CDI, contrats.CDD, contrats["Intérimaire"]],
+            backgroundColor: ["#3b82f6","#f59e0b","#8b5cf6"],
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { position: "right", labels: { font: { size: 11 }, boxWidth: 14 } } },
+          cutout: "65%"
+        }
       });
     }
 
+    /* ── Modal modification ── */
+    window.ouvrirModal = async function(id) {
+      const snap = await getDoc(doc(db, "employes", id));
+      if (!snap.exists()) return;
+      const e = snap.data();
+      document.getElementById("edit-id").value          = id;
+      document.getElementById("edit-nom").value         = e.nom         || "";
+      document.getElementById("edit-prenom").value      = e.prenom      || "";
+      document.getElementById("edit-email").value       = e.email       || "";
+      document.getElementById("edit-tel").value         = e.telephone   || "";
+      document.getElementById("edit-poste").value       = e.poste       || "";
+      document.getElementById("edit-dept").value        = e.departement || "Direction";
+      document.getElementById("edit-contrat").value     = e.typeContrat || "CDI Temps plein";
+      document.getElementById("edit-date-entree").value = e.dateEntree  || "";
+      document.getElementById("edit-statut").value      = e.statut      || "Actif";
+      document.getElementById("edit-salaire").value     = e.salaireBase || "";
+      document.getElementById("edit-nss").value         = e.nss         || "";
+      document.getElementById("edit-iban").value        = e.iban        || "";
+      document.getElementById("edit-adresse").value     = e.adresse     || "";
+      document.getElementById("modal-overlay").classList.add("open");
+    };
+
+    document.getElementById("btn-cancel-modal").addEventListener("click", () =>
+      document.getElementById("modal-overlay").classList.remove("open"));
+
+    document.getElementById("modal-overlay").addEventListener("click", (e) => {
+      if (e.target === document.getElementById("modal-overlay"))
+        document.getElementById("modal-overlay").classList.remove("open");
+    });
+
+    document.getElementById("btn-save-modal").addEventListener("click", async () => {
+      const id = document.getElementById("edit-id").value;
+      try {
+        await updateDoc(doc(db, "employes", id), {
+          nom:         document.getElementById("edit-nom").value.toUpperCase().trim(),
+          prenom:      document.getElementById("edit-prenom").value.trim(),
+          email:       document.getElementById("edit-email").value.trim(),
+          telephone:   document.getElementById("edit-tel").value.trim(),
+          poste:       document.getElementById("edit-poste").value.trim(),
+          departement: document.getElementById("edit-dept").value,
+          typeContrat: document.getElementById("edit-contrat").value,
+          dateEntree:  document.getElementById("edit-date-entree").value,
+          statut:      document.getElementById("edit-statut").value,
+          salaireBase: Number(document.getElementById("edit-salaire").value),
+          nss:         document.getElementById("edit-nss").value.trim(),
+          iban:        document.getElementById("edit-iban").value.trim(),
+          adresse:     document.getElementById("edit-adresse").value.trim(),
+        });
+        document.getElementById("modal-overlay").classList.remove("open");
+        notif("✅ Employé mis à jour avec succès !");
+        chargerDashboard();
+      } catch (err) {
+        notif("❌ Erreur lors de la mise à jour.", "erreur");
+      }
+    });
+
+    /* ── Supprimer ── */
+    window.supprimerEmploye = async function(id) {
+      if (!confirm("Supprimer cet employé définitivement ?")) return;
+      try {
+        await deleteDoc(doc(db, "employes", id));
+        notif("🗑️ Employé supprimé.");
+        chargerDashboard();
+      } catch (err) {
+        notif("❌ Erreur lors de la suppression.", "erreur");
+      }
+    };
+
     chargerDashboard();
   </script>
+
 </body>
 </html>
+<!-- ================================================================
+     FIN — pages/dashboard.html
+     ================================================================ -->

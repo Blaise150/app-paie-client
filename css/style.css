@@ -1,261 +1,1319 @@
-/* ============================================
-   style.css — Application de Paie
-   ============================================ */
+/* ================================================================
+   style.css — MyPaie Application
+   Fichier CSS unique central — tous les styles du projet
+   Polices requises dans chaque <head> :
+   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+   ================================================================
+   TABLE DES MATIÈRES
+   01. Variables CSS & Reset
+   02. Navbar & Menu mobile
+   03. Layout principal
+   04. Page Login — index.html
+   05. Logo MyPaie (monogramme MP)
+   06. Cards & formulaires
+   07. Boutons
+   08. Badges
+   09. Tableaux
+   10. Dashboard — stats, graphiques, modal, notifications
+   11. Page Employés — employes.html
+   12. Fiche de paie — fiche-paie.html
+   13. Bulletin A4 imprimable — bulletin-print.html
+   14. Animations
+   15. Impression @media print
+   16. Responsive mobile ≤ 900px
+   ================================================================ */
 
-/* ── Variables & Reset ───────────────────── */
+
+/* ================================================================
+   01. VARIABLES CSS & RESET
+   ================================================================ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bleu:        #1a56db;
-  --bleu-dark:   #1341b5;
-  --vert:        #057a55;
-  --rouge:       #c81e1e;
-  --orange:      #d03801;
-  --gris-bg:     #f3f4f6;
-  --gris-border: #e5e7eb;
-  --gris-text:   #6b7280;
-  --noir:        #111827;
-  --blanc:       #ffffff;
-  --shadow:      0 4px 6px -1px rgba(0,0,0,.1);
-  --radius:      10px;
+  /* Palette bleue principale */
+  --bleu:           #1a56db;
+  --bleu-dark:      #1341b5;
+  --bleu-light:     #dbeafe;
+  --bleu-pale:      #eff6ff;
+  --bleu-sky:       #38BDF8;
+  --bleu-ocean:     #1A7ABF;
+  --bleu-nav:       #93c5fd;   /* texte "paie" dans navbar */
+
+  /* Couleurs sémantiques */
+  --vert:           #057a55;
+  --vert-dark:      #046946;
+  --vert-light:     #d1fae5;
+  --rouge:          #c81e1e;
+  --rouge-dark:     #a81a1a;
+  --rouge-light:    #fee2e2;
+  --orange-light:   #fee3d0;
+  --violet-light:   #ede9fe;
+  --rose-light:     #fce7f3;
+  --jaune-light:    #fef3c7;
+
+  /* Neutres */
+  --gris-bg:        #f3f4f6;
+  --gris-border:    #e5e7eb;
+  --gris-row:       #f3f4f6;
+  --gris-text:      #6b7280;
+  --gris-dark:      #374151;
+  --noir:           #111827;
+  --blanc:          #ffffff;
+
+  /* Élévation */
+  --shadow-sm:      0 2px 8px  rgba(0,0,0,0.07);
+  --shadow:         0 4px 12px rgba(0,0,0,0.09);
+  --shadow-md:      0 8px 28px rgba(0,0,0,0.12);
+  --shadow-lg:      0 20px 60px rgba(0,0,0,0.18);
+
+  /* Rayons */
+  --r-sm:   6px;
+  --r:      10px;
+  --r-lg:   14px;
+  --r-xl:   24px;
 }
 
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'DM Sans', 'Segoe UI', Tahoma, sans-serif;
   background: var(--gris-bg);
   color: var(--noir);
   min-height: 100vh;
+  line-height: 1.5;
 }
 
-/* ── NAVBAR ──────────────────────────────── */
+
+/* ================================================================
+   02. NAVBAR & MENU MOBILE
+   ================================================================ */
 nav {
   background: var(--bleu);
-  color: white;
+  box-shadow: var(--shadow-md);
+  position: relative;
+  z-index: 999;
+}
+.nav-top {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 2rem;
-  height: 60px;
-  box-shadow: var(--shadow);
+  gap: 1rem;
+  padding: 0 1.5rem;
+  height: 65px;
 }
-nav .logo { font-size: 1.3rem; font-weight: 700; letter-spacing: 0.5px; }
-nav .logo span { color: #93c5fd; }
-nav ul { display: flex; gap: 0.5rem; list-style: none; }
-nav ul a {
+
+/* Logo dans la navbar */
+nav .logo {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--blanc);
+  white-space: nowrap;
+  flex: 0 0 auto;
+  font-family: 'DM Sans', sans-serif;
+  text-decoration: none;
+}
+nav .logo span { color: var(--bleu-nav); }
+
+/* Liens de navigation */
+.nav-links {
+  display: flex;
+  align-items: center;
+  list-style: none;
+  flex: 1;
+  gap: 0.25rem;
+}
+.nav-links a {
+  display: block;
   color: rgba(255,255,255,.85);
   text-decoration: none;
-  padding: 0.4rem 0.9rem;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  transition: background .2s;
+  padding: 0.4rem 0.85rem;
+  border-radius: var(--r-sm);
+  font-size: 0.88rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background .2s, color .2s;
 }
-nav ul a:hover, nav ul a.active { background: rgba(255,255,255,.2); color: white; }
-nav .nav-right { display: flex; align-items: center; gap: 1rem; font-size: 0.85rem; }
+.nav-links a:hover,
+.nav-links a.active {
+  color: var(--blanc);
+  background: rgba(255,255,255,.15);
+}
+
+/* Partie droite — email + déconnexion */
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: auto;
+  white-space: nowrap;
+  font-size: 0.82rem;
+  color: rgba(255,255,255,.7);
+}
 nav .btn-deconnexion {
   background: rgba(255,255,255,.15);
-  border: 1px solid rgba(255,255,255,.3);
-  color: white;
-  padding: 0.35rem 0.8rem;
-  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,.4);
+  color: var(--blanc);
+  padding: 0.4rem 0.9rem;
+  border-radius: var(--r-sm);
   cursor: pointer;
   font-size: 0.85rem;
+  font-family: 'DM Sans', sans-serif;
+  transition: background .2s;
 }
-nav .btn-deconnexion:hover { background: rgba(255,255,255,.25); }
+nav .btn-deconnexion:hover { background: rgba(255,255,255,.28); }
 
-/* ── LAYOUT ──────────────────────────────── */
-main { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; }
+/* Bouton hamburger — masqué sur desktop */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+  padding: 8px 10px;
+  background: rgba(255,255,255,.2);
+  border: 1.5px solid rgba(255,255,255,.5);
+  border-radius: 8px;
+  flex: 0 0 auto;
+}
+.hamburger span {
+  display: block;
+  width: 22px;
+  height: 2.5px;
+  background: var(--blanc);
+  border-radius: 2px;
+}
 
-/* ── PAGE LOGIN ──────────────────────────── */
+
+/* ================================================================
+   03. LAYOUT PRINCIPAL
+   ================================================================ */
+main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+main > h2 {
+  font-size: 1.4rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Grille 2 colonnes */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+/* Card générique */
+.card {
+  background: var(--blanc);
+  border-radius: var(--r);
+  padding: 1.75rem;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 1.5rem;
+}
+.card > h2 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--noir);
+  margin-bottom: 1.25rem;
+}
+
+/* En-tête de card avec lien */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.1rem;
+}
+.card-header h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--noir);
+  margin-bottom: 0;
+}
+.card-header a {
+  font-size: 0.8rem;
+  color: var(--bleu);
+  text-decoration: none;
+  font-weight: 600;
+}
+.card-header a:hover { text-decoration: underline; }
+
+
+/* ================================================================
+   04. PAGE LOGIN — index.html
+   ================================================================ */
+
+/* Fond avec dégradé et bulles décoratives */
 .login-container {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #1a56db 0%, #1341b5 50%, #0f2d7a 100%);
+  background: linear-gradient(160deg, #D6E8F8 0%, #EAF3FC 50%, #D0E6F7 100%);
+  position: relative;
+  overflow: hidden;
 }
-.login-card {
-  background: white;
-  padding: 2.5rem;
-  border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-  width: 100%;
-  max-width: 420px;
+.login-container::before,
+.login-container::after {
+  content: '';
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.4;
+  pointer-events: none;
 }
-.login-card h1 {
-  text-align: center;
-  color: var(--bleu);
-  font-size: 1.6rem;
-  margin-bottom: 0.5rem;
+.login-container::before {
+  width: 400px; height: 400px;
+  background: #93C5FD;
+  top: -80px; left: -80px;
 }
-.login-card .subtitle {
-  text-align: center;
-  color: var(--gris-text);
-  font-size: 0.9rem;
-  margin-bottom: 2rem;
+.login-container::after {
+  width: 300px; height: 300px;
+  background: #BFDBFE;
+  bottom: -60px; right: -60px;
 }
 
-/* ── CARDS / STATS DASHBOARD ─────────────── */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1.25rem;
-  margin-bottom: 2rem;
+/* Carte blanche centrale */
+.login-card {
+  background: var(--blanc);
+  padding: 44px 40px 36px;
+  border-radius: var(--r-xl);
+  box-shadow: 0 4px 6px rgba(59,130,246,0.06),
+              0 20px 60px rgba(59,130,246,0.14),
+              0 0 0 1px rgba(186,230,253,0.5);
+  width: 100%;
+  max-width: 440px;
+  position: relative;
+  z-index: 10;
+  animation: fadeUp 0.5s cubic-bezier(.34,1.56,.64,1) both;
 }
-.stat-card {
-  background: white;
-  border-radius: var(--radius);
-  padding: 1.5rem;
-  box-shadow: var(--shadow);
+
+/* Sous-titre login */
+.login-subtitle {
+  text-align: center;
+  font-size: 13.5px;
+  color: #94A3B8;
+  margin-bottom: 28px;
+  font-weight: 400;
+}
+
+/* Séparateur login */
+.divider {
+  height: 1px;
+  background: #E8F2FB;
+  margin-bottom: 28px;
+}
+
+/* Champs login — override spécifique */
+.login-card .form-group {
+  margin-bottom: 18px;
+}
+.login-card .form-group label {
+  font-size: 10.5px;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+  color: #64748B;
+}
+.login-card .form-group input {
+  background: #F4F9FD;
+  border-color: #D4E9F7;
+  padding: 14px 18px;
+  border-radius: 12px;
+  font-size: 15px;
+  color: #1E293B;
+}
+.login-card .form-group input:focus {
+  border-color: var(--bleu-ocean);
+  background: var(--blanc);
+  box-shadow: 0 0 0 4px rgba(26,122,191,0.1);
+}
+.login-card .form-group input::placeholder { color: #94A3B8; }
+
+/* Champ mot de passe avec bouton toggle visibilité */
+.input-password-wrap {
+  position: relative;
+}
+.input-password-wrap input {
+  width: 100%;
+  padding-right: 48px; /* espace pour le bouton */
+}
+.btn-toggle-mdp {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: #94A3B8;
+  padding: 0;
+  line-height: 1;
+  transition: color .2s;
+}
+.btn-toggle-mdp:hover { color: var(--bleu-ocean); }
+
+/* Lien mot de passe oublié */
+a.forgot {
+  display: block;
+  text-align: right;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--bleu-ocean);
+  text-decoration: none;
+  margin-top: 8px;
+  transition: color .2s;
+}
+a.forgot:hover { color: var(--bleu-sky); }
+
+/* Bouton Se connecter */
+.btn-login {
+  width: 100%;
+  padding: 16px;
+  margin-top: 24px;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #1A7ABF, #38BDF8);
+  color: var(--blanc);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(26,122,191,0.4);
+  transition: transform .15s, box-shadow .15s;
+}
+.btn-login:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(26,122,191,0.5);
+}
+.btn-login:active { transform: translateY(0); }
+
+/* Message d'erreur */
+#erreur {
+  font-size: 13px;
+  color: #EF4444;
+  margin-top: 4px;
+  min-height: 18px;
+  display: none;
+}
+
+/* Mention pied de carte */
+.footer-note {
+  text-align: center;
+  font-size: 11.5px;
+  color: #CBD5E1;
+  margin-top: 28px;
+}
+
+
+/* ================================================================
+   05. LOGO MYPAIE — monogramme MP
+   ================================================================ */
+
+/* Wrapper logo + texte */
+.logo-wrap {
   display: flex;
   align-items: center;
-  gap: 1.2rem;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 12px;
 }
-.stat-card .icone {
-  width: 52px; height: 52px;
-  border-radius: 12px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.5rem;
-}
-.stat-card .icone.bleu   { background: #dbeafe; }
-.stat-card .icone.vert   { background: #d1fae5; }
-.stat-card .icone.orange { background: #fee3d0; }
-.stat-card .icone.violet { background: #ede9fe; }
-.stat-card h3 { font-size: 1.6rem; font-weight: 700; }
-.stat-card p  { font-size: 0.8rem; color: var(--gris-text); }
 
-/* ── FORMULAIRES ─────────────────────────── */
-.card {
-  background: white;
-  border-radius: var(--radius);
-  padding: 1.75rem;
-  box-shadow: var(--shadow);
-  margin-bottom: 1.5rem;
+/* Boîte icône SVG */
+.logo-icon-box {
+  width: 68px;
+  height: 68px;
+  background: linear-gradient(145deg, #EAF6FF, var(--blanc));
+  border: 1.5px solid #BAE6FD;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(2,132,199,0.15);
 }
-.card h2 { font-size: 1.1rem; margin-bottom: 1.25rem; color: var(--noir); }
 
+/* Texte My + Paie */
+.logo-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+  gap: 2px;
+}
+.logo-my {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  color: #7CB9D8;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.logo-paie {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 38px;
+  font-weight: 700;
+  color: var(--bleu-ocean);
+  letter-spacing: 1px;
+  line-height: 1.05;
+}
+
+
+/* ================================================================
+   06. CARDS & FORMULAIRES
+   ================================================================ */
+
+/* Grille de formulaire */
 .form-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
 }
-.form-group { display: flex; flex-direction: column; gap: 0.35rem; }
-.form-group label { font-size: 0.8rem; font-weight: 600; color: var(--gris-text); text-transform: uppercase; }
-.form-group input, .form-group select {
+.full-width { grid-column: 1 / -1; }
+
+/* Groupe champ */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.form-group label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--gris-text);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.form-group input,
+.form-group select {
   padding: 0.65rem 0.9rem;
   border: 1.5px solid var(--gris-border);
-  border-radius: 7px;
+  border-radius: var(--r-sm);
   font-size: 0.9rem;
+  font-family: 'DM Sans', sans-serif;
+  outline: none;
+  background: var(--blanc);
+  transition: border-color .2s, box-shadow .2s;
+}
+.form-group input:focus,
+.form-group select:focus {
+  border-color: var(--bleu);
+  box-shadow: 0 0 0 3px rgba(26,86,219,0.08);
+}
+.form-group input::placeholder { color: #94A3B8; }
+
+/* Checkbox inline */
+.form-group.inline {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  padding-top: 1.5rem;
+}
+.form-group.inline label { margin: 0; text-transform: none; font-size: 0.9rem; }
+.form-group.inline input  { width: auto; }
+
+/* Notification inline */
+.notification {
+  padding: 0.85rem 1.1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  display: none;
+  font-weight: 500;
+  font-size: 0.9rem;
+  animation: fadeUp .3s ease;
+}
+.notification.succes { background: var(--vert-light);  color: #065f46; border: 1px solid #a7f3d0; }
+.notification.erreur { background: var(--rouge-light); color: #991b1b; border: 1px solid #fca5a5; }
+.notification.info   { background: var(--bleu-light);  color: #1e40af; border: 1px solid #93c5fd; }
+
+
+/* ================================================================
+   07. BOUTONS
+   ================================================================ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.65rem 1.4rem;
+  border: none;
+  border-radius: var(--r-sm);
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all .2s;
+}
+
+/* Variantes couleurs */
+.btn-primaire {
+  background: var(--bleu);
+  color: var(--blanc);
+  box-shadow: 0 2px 8px rgba(26,86,219,0.25);
+}
+.btn-primaire:hover { background: var(--bleu-dark); transform: translateY(-1px); }
+
+.btn-vert {
+  background: var(--vert);
+  color: var(--blanc);
+  box-shadow: 0 2px 8px rgba(5,122,85,0.25);
+}
+.btn-vert:hover { background: var(--vert-dark); transform: translateY(-1px); }
+
+.btn-rouge { background: var(--rouge); color: var(--blanc); }
+.btn-rouge:hover { background: var(--rouge-dark); }
+
+/* Petit bouton tableau */
+.btn-sm { padding: 0.3rem 0.7rem; font-size: 0.8rem; border-radius: 5px; }
+
+/* Boutons Modifier / Supprimer tableau */
+.btn-modifier {
+  background: var(--jaune-light); color: #92400e;
+  border: none; border-radius: 5px;
+  padding: 0.3rem 0.7rem; font-size: 0.8rem;
+  cursor: pointer; font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+  transition: background .2s;
+}
+.btn-modifier:hover { background: #fde68a; }
+
+.btn-supprimer {
+  background: var(--rouge-light); color: #991b1b;
+  border: none; border-radius: 5px;
+  padding: 0.3rem 0.7rem; font-size: 0.8rem;
+  cursor: pointer; font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+  transition: background .2s;
+}
+.btn-supprimer:hover { background: #fca5a5; }
+
+/* Boutons action tableau (dashboard) */
+.btn-action {
+  background: none; border: none;
+  cursor: pointer; padding: 4px 8px;
+  border-radius: 5px; font-size: 0.8rem;
+  font-weight: 600; transition: background .15s;
+}
+.btn-edit { background: var(--bleu-pale); color: var(--bleu); }
+.btn-edit:hover { background: var(--bleu-light); }
+.btn-del  { background: #fff5f5; color: var(--rouge); }
+.btn-del:hover  { background: var(--rouge-light); }
+
+/* Bouton impression A4 */
+.btn-print {
+  background: var(--bleu); color: var(--blanc);
+  border: none; padding: 10px 24px;
+  border-radius: 8px; font-family: 'DM Sans', sans-serif;
+  font-size: 14px; font-weight: 600; cursor: pointer;
+  box-shadow: 0 4px 12px rgba(26,86,219,0.3);
+  transition: background .2s, transform .15s;
+}
+.btn-print:hover { background: var(--bleu-dark); transform: translateY(-1px); }
+
+/* Boutons modal */
+.btn-cancel {
+  padding: 0.6rem 1.2rem;
+  border: 1.5px solid var(--gris-border);
+  border-radius: var(--r-sm);
+  background: var(--blanc); cursor: pointer;
+  font-weight: 600; font-size: 0.875rem;
+  font-family: 'DM Sans', sans-serif;
+}
+.btn-save {
+  padding: 0.6rem 1.4rem;
+  background: var(--bleu); color: var(--blanc);
+  border: none; border-radius: var(--r-sm);
+  cursor: pointer; font-weight: 700; font-size: 0.875rem;
+  font-family: 'DM Sans', sans-serif;
+  box-shadow: 0 2px 8px rgba(26,86,219,0.3);
+  transition: background .2s;
+}
+.btn-save:hover { background: var(--bleu-dark); }
+
+
+/* ================================================================
+   08. BADGES
+   ================================================================ */
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: 0.73rem;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+}
+
+/* Statut employé */
+.badge-actif   { background: var(--vert-light);   color: #065f46; }
+.badge-inactif { background: var(--rouge-light);  color: #991b1b; }
+
+/* Type contrat */
+.badge-cdi     { background: var(--bleu-light);   color: #1e40af; }
+.badge-cdd     { background: var(--jaune-light);  color: #92400e; }
+.badge-interim { background: var(--violet-light); color: #5b21b6; }
+
+/* Tendance dans les stats cards */
+.trend {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 99px;
+  margin-top: 4px;
+}
+.trend.up   { background: var(--vert-light); color: #065f46; }
+.trend.info { background: var(--bleu-light); color: #1e40af; }
+
+
+/* ================================================================
+   09. TABLEAUX
+   ================================================================ */
+.table-container { overflow-x: auto; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  min-width: 600px;
+}
+thead { background: #F8FAFC; }
+th {
+  padding: 0.85rem 1rem;
+  text-align: left;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--gris-text);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid var(--gris-border);
+  white-space: nowrap;
+}
+td {
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid var(--gris-row);
+  vertical-align: middle;
+}
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #FAFBFF; }
+td a { color: var(--bleu); text-decoration: none; }
+td a:hover { text-decoration: underline; }
+
+/* Cellules colorées */
+td.rouge { color: var(--rouge); }
+td.vert  { color: var(--vert);  }
+td.bleu  { color: var(--bleu);  }
+
+
+/* ================================================================
+   10. DASHBOARD — stats, graphiques, modal, notifications
+   ================================================================ */
+
+/* Grille des 4 cartes stats */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Carte stat cliquable */
+.stat-card {
+  background: var(--blanc);
+  border-radius: 12px;
+  padding: 1.4rem 1.5rem;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  text-decoration: none;
+  color: inherit;
+  border: 2px solid transparent;
+  transition: transform .2s, box-shadow .2s, border-color .2s;
+  cursor: pointer;
+}
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--bleu-light);
+}
+
+/* Icône dans la stat card */
+.stat-card .icone {
+  width: 52px; height: 52px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+.icone.bleu   { background: var(--bleu-light);  }
+.icone.vert   { background: var(--vert-light);  }
+.icone.orange { background: var(--orange-light);}
+.icone.violet { background: var(--violet-light);}
+.icone.rose   { background: var(--rose-light);  }
+
+.stat-card h3 { font-size: 1.7rem; font-weight: 800; color: var(--noir); line-height: 1; }
+.stat-card p  { font-size: 0.78rem; color: var(--gris-text); margin-top: 2px; }
+
+/* Zone graphique */
+.chart-wrap { position: relative; height: 200px; }
+
+/* Accès rapides */
+.quick-links { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+
+/* Notification toast (coin haut droite) */
+.notif {
+  position: fixed; top: 80px; right: 20px;
+  padding: 12px 20px;
+  border-radius: 9px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-md);
+  z-index: 3000;
+  display: none;
+  animation: slideIn .3s ease;
+}
+.notif.succes { background: var(--vert-light);  color: #065f46; border: 1px solid #a7f3d0; }
+.notif.erreur { background: var(--rouge-light); color: #991b1b; border: 1px solid #fca5a5; }
+.notif.info   { background: var(--bleu-light);  color: #1e40af; border: 1px solid #93c5fd; }
+
+/* Modal modification employé */
+.modal-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 2000;
+  align-items: center;
+  justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+
+.modal {
+  background: var(--blanc);
+  border-radius: var(--r-lg);
+  padding: 2rem;
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+  animation: popIn .25s ease;
+}
+.modal h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 1.2rem;
+  color: var(--noir);
+}
+
+/* Grille de champs dans la modal */
+.modal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.9rem;
+}
+.modal-grid .full { grid-column: 1 / -1; }
+.modal label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--gris-text);
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 4px;
+}
+.modal input,
+.modal select {
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  border: 1.5px solid var(--gris-border);
+  border-radius: var(--r-sm);
+  font-size: 0.875rem;
+  font-family: 'DM Sans', sans-serif;
   outline: none;
   transition: border-color .2s;
 }
-.form-group input:focus, .form-group select:focus { border-color: var(--bleu); }
+.modal input:focus,
+.modal select:focus { border-color: var(--bleu); }
 
-/* ── BOUTONS ─────────────────────────────── */
-.btn {
-  padding: 0.65rem 1.4rem;
-  border: none;
-  border-radius: 7px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all .2s;
+/* Pied de modal */
+.modal-footer {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  justify-content: flex-end;
 }
-.btn-primaire { background: var(--bleu); color: white; }
-.btn-primaire:hover { background: var(--bleu-dark); }
-.btn-vert { background: var(--vert); color: white; }
-.btn-vert:hover { background: #046946; }
-.btn-rouge { background: var(--rouge); color: white; }
-.btn-modifier { background: #fef3c7; color: #92400e; border: none; border-radius: 5px; padding: 0.3rem 0.6rem; cursor: pointer; }
-.btn-supprimer { background: #fee2e2; color: #991b1b; border: none; border-radius: 5px; padding: 0.3rem 0.6rem; cursor: pointer; }
 
-/* ── TABLEAU EMPLOYÉS ────────────────────── */
-.table-container { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-thead { background: var(--gris-bg); }
-th { padding: 0.75rem 1rem; text-align: left; font-size: 0.75rem; font-weight: 700; color: var(--gris-text); text-transform: uppercase; border-bottom: 1px solid var(--gris-border); }
-td { padding: 0.85rem 1rem; border-bottom: 1px solid var(--gris-border); }
-tr:last-child td { border-bottom: none; }
-tr:hover td { background: #f9fafb; }
 
-/* ── FICHE DE PAIE ───────────────────────── */
+/* ================================================================
+   11. PAGE EMPLOYÉS — employes.html
+   ================================================================ */
+
+/* Les styles de cette page héritent intégralement des sections
+   06 (formulaires), 07 (boutons), 08 (badges) et 09 (tableaux).
+   Aucun style supplémentaire nécessaire. */
+
+
+/* ================================================================
+   12. FICHE DE PAIE — fiche-paie.html
+   ================================================================ */
+
+/* Conteneur principal de la fiche */
 #fiche-paie {
-  background: white;
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
+  background: var(--blanc);
+  border-radius: var(--r);
+  box-shadow: var(--shadow-sm);
   padding: 2rem;
   margin-top: 1.5rem;
-  display: none;
 }
+
+/* En-tête fiche (entreprise / employé) */
 .fiche-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
-  border-bottom: 2px solid var(--bleu);
+  border-bottom: 3px solid var(--bleu);
 }
 .fiche-header h2 { color: var(--bleu); font-size: 1.3rem; }
-.fiche-employe   { font-size: 0.9rem; color: var(--gris-text); }
-.fiche-ligne {
-  display: flex;
-  justify-content: space-between;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid var(--gris-border);
-  font-size: 0.9rem;
+.fiche-employe {
+  font-size: 0.88rem;
+  color: var(--gris-text);
+  margin-top: 0.4rem;
+  line-height: 1.7;
 }
-.fiche-ligne.total {
-  font-weight: 700;
-  font-size: 1rem;
-  background: var(--gris-bg);
-  padding: 0.75rem 0.5rem;
-  border-radius: 5px;
-  margin-top: 0.5rem;
-  border: none;
-}
-.fiche-ligne.net {
-  font-weight: 800;
-  font-size: 1.15rem;
-  color: var(--vert);
-  background: #d1fae5;
-  padding: 0.75rem 0.5rem;
-  border-radius: 5px;
-  margin-top: 0.5rem;
-  border: none;
-}
+
+/* En-tête de section (ligne avec tiret extensible) */
 .fiche-section-title {
   font-weight: 700;
   text-transform: uppercase;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   color: var(--gris-text);
-  padding: 1rem 0 0.3rem;
-  letter-spacing: 0.5px;
+  padding: 1.2rem 0 0.4rem;
+  letter-spacing: 0.8px;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
 }
-.rouge-text { color: var(--rouge); }
-
-/* ── NOTIFICATIONS ───────────────────────── */
-.notification {
-  padding: 0.75rem 1rem;
-  border-radius: 7px;
-  margin-bottom: 1rem;
-  display: none;
-  font-weight: 500;
+.fiche-section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--gris-border);
+  margin-left: 0.5rem;
 }
-.notification.succes { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
-.notification.erreur { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+.fiche-section-title.rouge { color: var(--rouge); }
+.fiche-section-title.bleu  { color: var(--bleu);  }
 
-/* ── ERREUR LOGIN ────────────────────────── */
-#erreur {
-  background: #fee2e2;
-  color: #991b1b;
-  padding: 0.6rem 0.9rem;
-  border-radius: 6px;
-  margin-top: 0.75rem;
+/* En-tête colonnes tableau fiche */
+.fiche-tableau-header {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+  padding: 0.5rem 0.75rem;
+  background: #F8FAFC;
+  border-radius: var(--r-sm);
+  margin: 0.5rem 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--gris-text);
+  border: 1px solid var(--gris-border);
+}
+.fiche-tableau-header .col-rouge { color: var(--rouge); }
+.fiche-tableau-header .col-bleu  { color: var(--bleu);  }
+
+/* Ligne normale fiche */
+.fiche-ligne {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--gris-row);
+  font-size: 0.875rem;
+  align-items: center;
+  transition: background .15s;
+}
+.fiche-ligne:hover { background: #FAFBFF; }
+.fiche-ligne.rouge-text { color: var(--rouge); }
+
+/* Ligne total (fond bleu) */
+.fiche-ligne.total {
+  font-weight: 700;
+  font-size: 0.95rem;
+  background: #F0F4FF;
+  padding: 0.75rem;
+  border-radius: var(--r-sm);
+  margin-top: 0.5rem;
+  border: 1px solid var(--bleu-light);
+  color: var(--bleu);
+}
+.fiche-ligne.total.rouge-text {
+  background: #FFF0F0;
+  border-color: var(--rouge-light);
+  color: var(--rouge);
+}
+.fiche-ligne.total.bleu-text {
+  background: #F0F4FF;
+  border-color: var(--bleu-light);
+  color: var(--bleu);
+}
+
+/* Ligne net à payer (fond vert) */
+.fiche-ligne.net {
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: var(--vert);
+  background: var(--vert-light);
+  padding: 0.85rem 0.75rem;
+  border-radius: 8px;
+  margin-top: 0.5rem;
+  border: 1px solid #A7F3D0;
+}
+
+/* Bloc IBAN en bas */
+.fiche-iban-box {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: #f9fafb;
+  border-radius: 8px;
   font-size: 0.85rem;
-  display: none;
+  color: var(--gris-text);
 }
 
-/* ── PRINT ───────────────────────────────── */
-@media print {
-  nav, .card:not(#fiche-paie), .btn { display: none !important; }
-  #fiche-paie { box-shadow: none !important; }
+/* Mention légale */
+.fiche-mention {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin-top: 1rem;
+  text-align: center;
 }
+
+/* Actions bas de fiche */
+.fiche-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+}
+
+
+/* ================================================================
+   13. BULLETIN A4 IMPRIMABLE — bulletin-print.html
+   ================================================================ */
+
+/* Corps de la page bulletin */
+body.bulletin-page {
+  background: #e8edf2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px;
+  min-height: 100vh;
+  gap: 16px;
+}
+
+/* Barre bouton imprimer */
+.print-bar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  width: 210mm;
+}
+.print-bar span { font-size: 12px; color: var(--gris-text); }
+
+/* Feuille A4 */
+.bulletin {
+  width: 210mm;
+  min-height: 297mm;
+  background: var(--blanc);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.15);
+  border-radius: 4px;
+  padding: 10mm 12mm;
+  display: flex;
+  flex-direction: column;
+  font-size: 8.5pt;
+  color: #1a1a2e;
+  font-family: 'DM Sans', sans-serif;
+  gap: 0;
+}
+
+/* En-tête bulletin (3 colonnes) */
+.bulletin .header {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: start;
+  padding-bottom: 5mm;
+  border-bottom: 2.5pt solid var(--bleu);
+  margin-bottom: 3mm;
+  gap: 4mm;
+}
+.bulletin .header-left .company      { font-size: 11pt; font-weight: 700; color: var(--bleu); }
+.bulletin .header-left .company-info { font-size: 7.5pt; color: var(--gris-text); line-height: 1.5; margin-top: 1mm; }
+.bulletin .header-center              { text-align: center; }
+.bulletin .header-center .titre       { font-size: 13pt; font-weight: 700; color: #1a1a2e; letter-spacing: 1px; text-transform: uppercase; }
+.bulletin .header-center .periode-badge {
+  display: inline-block;
+  background: var(--bleu); color: var(--blanc);
+  padding: 2pt 10pt; border-radius: 99pt;
+  font-size: 8pt; font-weight: 600; margin-top: 2mm;
+}
+.bulletin .header-right               { text-align: right; }
+.bulletin .header-right .label        { font-size: 7pt; color: var(--gris-text); text-transform: uppercase; letter-spacing: 0.5px; }
+.bulletin .header-right .value        { font-size: 8pt; font-weight: 600; color: #1a1a2e; }
+
+/* Bloc identité salarié */
+.bulletin .identity-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3mm;
+  padding: 3mm 4mm;
+  background: #f8fafc;
+  border-radius: 4pt;
+  margin-bottom: 3mm;
+  border: 0.5pt solid var(--gris-border);
+}
+.bulletin .identity-section .section-title {
+  font-size: 7pt; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.5px;
+  color: var(--bleu);
+  margin-bottom: 1.5mm; padding-bottom: 1mm;
+  border-bottom: 0.5pt solid var(--bleu-light);
+}
+.bulletin .identity-row      { display: flex; gap: 4pt; margin-bottom: 0.8mm; }
+.bulletin .identity-row .lbl { font-size: 7pt; color: var(--gris-text); min-width: 30mm; }
+.bulletin .identity-row .val { font-size: 7.5pt; font-weight: 600; color: #1a1a2e; }
+
+/* Sections tableau bulletin */
+.bulletin .table-section  { margin-bottom: 2.5mm; }
+.bulletin .table-title {
+  font-size: 7.5pt; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.5px;
+  color: var(--blanc); background: var(--bleu);
+  padding: 2mm 3mm;
+  border-radius: 3pt 3pt 0 0;
+}
+.bulletin .table-title.rouge { background: var(--rouge); }
+.bulletin .table-title.vert  { background: var(--vert);  }
+
+/* Tableau interne bulletin */
+.bulletin table           { width: 100%; border-collapse: collapse; font-size: 7.5pt; }
+.bulletin thead tr        { background: #f0f4ff; }
+.bulletin thead th {
+  padding: 1.5mm 2.5mm; text-align: right;
+  font-size: 6.8pt; font-weight: 700; color: var(--gris-dark);
+  text-transform: uppercase; letter-spacing: 0.3px;
+  border-bottom: 0.5pt solid var(--bleu-light);
+}
+.bulletin thead th:first-child { text-align: left; }
+.bulletin tbody tr            { border-bottom: 0.3pt solid #f3f4f6; }
+.bulletin tbody tr:last-child  { border-bottom: none; }
+.bulletin tbody tr:hover       { background: #fafbff; }
+.bulletin tbody td             { padding: 1.3mm 2.5mm; text-align: right; color: #1a1a2e; }
+.bulletin tbody td:first-child { text-align: left; font-weight: 500; }
+.bulletin tbody td.rouge       { color: var(--rouge); }
+.bulletin tbody td.vert        { color: var(--vert);  }
+.bulletin tbody td.bleu        { color: var(--bleu); font-size: 7pt; }
+
+/* Lignes total dans le bulletin */
+.bulletin tr.total-row td {
+  font-weight: 700; background: #f0f4ff;
+  border-top: 1pt solid var(--bleu); color: var(--bleu);
+  padding: 1.8mm 2.5mm;
+}
+.bulletin tr.total-row.rouge td { background: #fff0f0; border-color: var(--rouge); color: var(--rouge); }
+.bulletin tr.total-row.vert  td { background: #f0fdf4; border-color: var(--vert);  color: var(--vert);  }
+
+/* Résumé 3 boîtes */
+.bulletin .resume-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3mm;
+  margin: 3mm 0;
+}
+.bulletin .resume-box {
+  border-radius: 4pt;
+  padding: 2.5mm 3mm;
+  text-align: center;
+  border: 0.5pt solid;
+}
+.bulletin .resume-box.bleu  { background: #eff6ff; border-color: #bfdbfe; }
+.bulletin .resume-box.rouge { background: #fff5f5; border-color: #fecaca; }
+.bulletin .resume-box.vert  { background: #f0fdf4; border-color: #bbf7d0; }
+.bulletin .resume-box .r-label { font-size: 6.5pt; color: var(--gris-text); text-transform: uppercase; letter-spacing: 0.3px; }
+.bulletin .resume-box .r-value { font-size: 11pt; font-weight: 700; margin-top: 0.5mm; }
+.bulletin .resume-box.bleu  .r-value { color: var(--bleu); }
+.bulletin .resume-box.rouge .r-value { color: var(--rouge);}
+.bulletin .resume-box.vert  .r-value { color: var(--vert); }
+
+/* Bannière Net à payer */
+.bulletin .net-box {
+  background: linear-gradient(135deg, #057a55, #059669);
+  color: var(--blanc);
+  border-radius: 6pt;
+  padding: 4mm 6mm;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 3mm 0;
+}
+.bulletin .net-box .net-label { font-size: 10pt; font-weight: 700; letter-spacing: 0.5px; }
+.bulletin .net-box .net-value { font-size: 16pt; font-weight: 700; }
+.bulletin .net-box .net-sub   { font-size: 7pt; opacity: 0.8; margin-top: 1mm; }
+
+/* Pied du bulletin */
+.bulletin .footer {
+  margin-top: auto;
+  padding-top: 3mm;
+  border-top: 0.5pt solid var(--gris-border);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3mm;
+  font-size: 7pt;
+  color: var(--gris-text);
+}
+.bulletin .footer .iban-value { font-weight: 600; color: #1a1a2e; font-size: 7.5pt; }
+.bulletin .footer .footer-mention { text-align: right; line-height: 1.5; }
+
+
+/* ================================================================
+   UTILITAIRES COMMUNS
+   ================================================================ */
+
+/* Cellule centrée / grisée dans les tableaux */
+.td-center { text-align: center; }
+.td-muted  { color: var(--gris-text); }
+
+/* Actions inline dans une cellule */
+.td-actions { display: flex; gap: 4px; }
+
+/* Stat mois — taille adaptée */
+.stat-mois-txt { font-size: 1rem !important; line-height: 1.3 !important; }
+
+/* Card flex colonne (dashboard) */
+.card-flex-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.chart-second-wrap { margin-top: 1.5rem; }
+.chart-wrap-sm     { height: 150px !important; }
+
+/* En-tête fiche — partie droite */
+.fiche-header-right { text-align: right; }
+.fiche-meta-label   { font-size: 0.75rem; color: var(--gris-text); margin-top: 0.3rem; }
+.fiche-meta-value   { font-weight: 700; font-size: 0.9rem; color: var(--noir); }
+
+/* Net box — partie droite */
+.net-box-right { text-align: right; }
+
+/* ================================================================
+   14. ANIMATIONS
+   ================================================================ */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+@keyframes popIn {
+  from { transform: scale(.93); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+
+
+/* ================================================================
+   15. IMPRESSION @MEDIA PRINT
+   ================================================================ */
+@media print {
+  @page { size: A4; margin: 0; }
+
+  /* Bulletin une seule page A4 */
+  body.bulletin-page {
+    background: white;
+    padding: 0;
+    display: block;
+  }
+  .print-bar { display: none !important; }
+  .bulletin {
+    width: 210mm;
+    min-height: 297mm;
+    max-height: 297mm;
+    box-shadow: none;
+    border-radius: 0;
+    padding: 10mm 12mm;
+    page-break-after: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Fiche de paie : masquer tout sauf le résultat */
+  nav, form, .btn, .card:not(#fiche-paie) { display: none !important; }
+  #fiche-paie { box-shadow: none !important; margin: 0 !important; }
+  .fiche-section-title::after { display: none; }
+  body { background: white; }
+}
+
+
+/* ================================================================
+   16. RESPONSIVE MOBILE ≤ 900px
+   ================================================================ */
+@media (max-width: 900px) {
+
+  /* Navbar mobile — hamburger visible */
+  .nav-top {
+    position: relative;
+    justify-content: space-between;
+    padding: 0 1rem;
+  }
+  .hamburger { display: flex !important; }
+  nav .logo {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+  }
+  .nav-right { flex: 0 0 auto; margin-left: auto; }
+  nav .btn-deconnexion { font-size: 0; padding: 0.35rem 0.6rem; }
+  nav .btn-deconnexion::before { content: "🔓"; font-size: 1.2rem; }
+  #user-email { display: none; }
+
+  /* Menu déroulant */
+  .nav-links {
+    display: none;
+    flex-direction: column;
+    position: fixed;
+    top: 65px; left: 0;
+    width: 250px;
+    background: var(--bleu);
+    box-shadow: 4px 8px 20px rgba(0,0,0,0.3);
+    border-radius: 0 0 12px 0;
+    padding: 0.5rem 0;
+    z-index: 1000;
+  }
+  .nav-links.ouvert { display: flex; }
+  .nav-links a {
+    padding: 1rem;
+    border-radius: 0;
+    border-bottom: 1px solid rgba(255,255,255,.1);
+    font-size: 0.95rem;
+  }
+  .nav-links a:hover { padding-left: 2rem; }
+
+  /* Layout */
+  main { padding: 1rem; }
+  .card { padding: 1.25rem; }
+  .grid-2 { grid-template-columns: 1fr; }
+
+  /* Fiche paie — 2 colonnes sur mobile */
+  .fiche-tableau-header,
+  .fiche-ligne,
+  .fiche-ligne.total,
+  .fiche-ligne.net { grid-template-columns: 1fr 1fr; font-size: 0.8rem; }
+  .fiche-tableau-header span:nth-child(3),
+  .fiche-tableau-header span:nth-child(4),
+  .fiche-ligne span:nth-child(3),
+  .fiche-ligne span:nth-child(4) { display: none; }
+}
+
+/* ================================================================
+   FIN DU FICHIER — style.css — MyPaie Application
+   ================================================================ */

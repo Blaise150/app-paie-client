@@ -1,0 +1,307 @@
+<!-- ================================================================
+     pages/bulletin-print.html — MyPaie Application
+     Bulletin de salaire A4 — page dédiée à l'impression / PDF
+     Ouvert en nouvel onglet depuis paie.js via localStorage
+     Dépendances : ../css/style.css
+     ================================================================ -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bulletin de Salaire — MyPaie</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body class="bulletin-page">
+
+  <!-- Barre impression — masquée à l'impression -->
+  <div class="print-bar">
+    <button class="btn-print" onclick="window.print()">🖨️ Imprimer / Enregistrer en PDF</button>
+    <span>Format A4 · Une seule page</span>
+  </div>
+
+  <!-- ── FEUILLE A4 ── -->
+  <div class="bulletin">
+
+    <!-- En-tête 3 colonnes -->
+    <div class="header">
+      <div class="header-left">
+        <div class="company">Mon Entreprise SAS</div>
+        <div class="company-info">
+          12 rue de la République, 75001 Paris<br>
+          SIRET : 123 456 789 00012 · APE : 6201Z<br>
+          URSSAF Paris · N° cotisant : 7512345678
+        </div>
+      </div>
+      <div class="header-center">
+        <div class="titre">Bulletin de Salaire</div>
+        <div class="periode-badge" id="bp-periode">Janvier 2026</div>
+      </div>
+      <div class="header-right">
+        <div class="label">Date d'émission</div>
+        <div class="value" id="bp-date-emission"></div>
+        <div class="label">Réf. bulletin</div>
+        <div class="value" id="bp-ref">BS-2026-001</div>
+      </div>
+    </div>
+
+    <!-- Identité salarié -->
+    <div class="identity-grid">
+      <div class="identity-section">
+        <div class="section-title">👤 Salarié</div>
+        <div class="identity-row"><span class="lbl">Nom & Prénom</span><span class="val" id="bp-nom">DUPONT Jean</span></div>
+        <div class="identity-row"><span class="lbl">Poste</span><span class="val" id="bp-poste">Développeur</span></div>
+        <div class="identity-row"><span class="lbl">Contrat</span><span class="val" id="bp-contrat">CDI Temps plein</span></div>
+        <div class="identity-row"><span class="lbl">Date d'entrée</span><span class="val" id="bp-date-entree">01/01/2023</span></div>
+        <div class="identity-row"><span class="lbl">N° SS</span><span class="val" id="bp-nss">1 85 12 75 123 456 78</span></div>
+        <div class="identity-row"><span class="lbl">Matricule</span><span class="val" id="bp-matricule">MAT-001</span></div>
+      </div>
+      <div class="identity-section">
+        <div class="section-title">📋 Infos paie</div>
+        <div class="identity-row"><span class="lbl">Département</span><span class="val" id="bp-dept">—</span></div>
+        <div class="identity-row"><span class="lbl">Base mensuelle</span><span class="val">151.67 heures</span></div>
+        <div class="identity-row"><span class="lbl">Jours travaillés</span><span class="val" id="bp-jours">22 jours</span></div>
+        <div class="identity-row"><span class="lbl">Statut</span><span class="val">Actif</span></div>
+        <div class="identity-row"><span class="lbl">Adresse</span><span class="val" id="bp-adresse">—</span></div>
+      </div>
+    </div>
+
+    <!-- Rémunération brute -->
+    <div class="table-section">
+      <div class="table-title">💰 Rémunération brute</div>
+      <table>
+        <thead>
+          <tr>
+            <th style="width:45%; text-align:left;">Libellé</th>
+            <th>Base</th>
+            <th>Taux</th>
+            <th>Montant (€)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Salaire de base</td>
+            <td>151.67 h</td><td>—</td>
+            <td class="vert" id="bp-base">3 000,00 €</td>
+          </tr>
+          <tr>
+            <td>Heures supplémentaires (×1.25)</td>
+            <td id="bp-hsup-h">0 h</td><td>×1.25</td>
+            <td id="bp-hsup">0,00 €</td>
+          </tr>
+          <tr>
+            <td>Primes</td>
+            <td>—</td><td>—</td>
+            <td id="bp-primes">0,00 €</td>
+          </tr>
+          <tr>
+            <td>Gardes</td>
+            <td>—</td><td>—</td>
+            <td id="bp-gardes">0,00 €</td>
+          </tr>
+          <tr>
+            <td>Indemnité repas</td>
+            <td id="bp-jours-repas">0 j</td><td>6,91 €/j</td>
+            <td id="bp-indem-repas">0,00 €</td>
+          </tr>
+          <tr>
+            <td>Indemnité transport</td>
+            <td>Forfait</td><td>—</td>
+            <td id="bp-indem-transp">50,00 €</td>
+          </tr>
+          <tr>
+            <td>Déductions absences</td>
+            <td>—</td><td>—</td>
+            <td class="rouge" id="bp-absences">— 0,00 €</td>
+          </tr>
+          <tr class="total-row">
+            <td>TOTAL RÉMUNÉRATION BRUTE</td>
+            <td></td><td></td>
+            <td id="bp-brut">3 050,00 €</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Cotisations sociales -->
+    <div class="table-section">
+      <div class="table-title rouge">📋 Cotisations sociales</div>
+      <table>
+        <thead>
+          <tr>
+            <th style="width:40%; text-align:left;">Libellé</th>
+            <th>Base</th>
+            <th>Taux salarié</th>
+            <th>Part salariale (€)</th>
+            <th>Taux patronal</th>
+            <th>Part patronale (€)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>SS Maladie</td>
+            <td>Brut</td>
+            <td class="rouge">0,00%</td><td class="rouge">0,00 €</td>
+            <td class="bleu">13,00%</td><td class="bleu" id="bp-pat-maladie">396,50 €</td>
+          </tr>
+          <tr>
+            <td>SS Alloc. familiales</td>
+            <td>Brut</td>
+            <td class="rouge">—</td><td class="rouge">—</td>
+            <td class="bleu">5,25%</td><td class="bleu" id="bp-pat-fam">160,13 €</td>
+          </tr>
+          <tr>
+            <td>SS Accidents du travail</td>
+            <td>Brut</td>
+            <td class="rouge">—</td><td class="rouge">—</td>
+            <td class="bleu">2,00%</td><td class="bleu" id="bp-pat-at">61,00 €</td>
+          </tr>
+          <tr>
+            <td>Allocation chômage</td>
+            <td>Brut</td>
+            <td class="rouge">0,00%</td><td class="rouge" id="bp-sal-chomage">0,00 €</td>
+            <td class="bleu">4,05%</td><td class="bleu" id="bp-pat-chomage">123,53 €</td>
+          </tr>
+          <tr>
+            <td>SS Vieillesse (plafonné ≤ 3 864 €)</td>
+            <td>Plafonné</td>
+            <td class="rouge">6,90%</td><td class="rouge" id="bp-sal-vieil-plaf">210,60 €</td>
+            <td class="bleu">8,55%</td><td class="bleu" id="bp-pat-vieil-plaf">260,88 €</td>
+          </tr>
+          <tr>
+            <td>SS Vieillesse (déplafonné)</td>
+            <td>Brut</td>
+            <td class="rouge">0,40%</td><td class="rouge" id="bp-sal-vieil-dep">12,20 €</td>
+            <td class="bleu">1,90%</td><td class="bleu" id="bp-pat-vieil-dep">57,95 €</td>
+          </tr>
+          <tr>
+            <td>CSG déductible</td>
+            <td>98,25% brut</td>
+            <td class="rouge">6,68%</td><td class="rouge" id="bp-csg-ded">200,12 €</td>
+            <td class="bleu">—</td><td class="bleu">—</td>
+          </tr>
+          <tr>
+            <td>CSG non déductible + CRDS</td>
+            <td>98,25% brut</td>
+            <td class="rouge">2,80%</td><td class="rouge" id="bp-csg-non">83,90 €</td>
+            <td class="bleu">—</td><td class="bleu">—</td>
+          </tr>
+          <tr class="total-row rouge">
+            <td>TOTAL COTISATIONS SALARIALES</td>
+            <td></td>
+            <td></td><td id="bp-total-sal">— 506,82 €</td>
+            <td></td><td id="bp-total-pat">1 059,99 €</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Résumé 3 boîtes -->
+    <div class="resume-grid">
+      <div class="resume-box bleu">
+        <div class="r-label">Salaire Brut</div>
+        <div class="r-value" id="bp-r-brut">3 050,00 €</div>
+      </div>
+      <div class="resume-box rouge">
+        <div class="r-label">Total retenues salariales</div>
+        <div class="r-value" id="bp-r-retenues">— 506,82 €</div>
+      </div>
+      <div class="resume-box vert">
+        <div class="r-label">Montant net social</div>
+        <div class="r-value" id="bp-r-net-social">2 543,18 €</div>
+      </div>
+    </div>
+
+    <!-- Net à payer -->
+    <div class="net-box">
+      <div>
+        <div class="net-label">💳 NET À PAYER</div>
+        <div class="net-sub">Après prélèvement à la source (PAS)</div>
+      </div>
+      <div class="net-box-right">
+        <div class="net-value" id="bp-net">2 310,00 €</div>
+        <div class="net-sub">PAS déduit : <span id="bp-pas">233,18 €</span></div>
+      </div>
+    </div>
+
+    <!-- Pied de bulletin -->
+    <div class="footer">
+      <div class="footer-iban">
+        🏦 Virement bancaire — IBAN :<br>
+        <span class="iban-value" id="bp-iban">FR76 3000 6000 0112 3456 7890 189</span>
+      </div>
+      <div class="footer-mention">
+        Brut imposable : <strong id="bp-brut-imp">2 593,18 €</strong><br>
+        Cumul brut annuel : <strong id="bp-cumul">3 050,00 €</strong><br>
+        <em>Conservez ce bulletin sans limitation de durée</em>
+      </div>
+    </div>
+
+  </div><!-- fin .bulletin -->
+
+  <script>
+    /* Date d'émission automatique */
+    document.getElementById("bp-date-emission").textContent =
+      new Date().toLocaleDateString("fr-FR");
+
+    /* Injection des données depuis localStorage (renseigné par paie.js) */
+    const raw = localStorage.getItem("bulletin_data");
+    if (raw) {
+      const { employe, periode, paie } = JSON.parse(raw);
+      const f = (n) => (n || 0).toLocaleString("fr-FR", {
+        minimumFractionDigits: 2, maximumFractionDigits: 2
+      }) + " €";
+
+      document.getElementById("bp-periode").textContent      = periode;
+      document.getElementById("bp-nom").textContent          = employe.nom        || "—";
+      document.getElementById("bp-poste").textContent        = employe.poste      || "—";
+      document.getElementById("bp-contrat").textContent      = employe.contrat    || "—";
+      document.getElementById("bp-date-entree").textContent  = employe.dateEntree || "—";
+      document.getElementById("bp-nss").textContent          = employe.nss        || "—";
+      document.getElementById("bp-matricule").textContent    = employe.matricule  || "—";
+      document.getElementById("bp-adresse").textContent      = employe.adresse    || "—";
+      document.getElementById("bp-iban").textContent         = employe.iban       || "—";
+
+      document.getElementById("bp-base").textContent         = f(paie.salaireBase);
+      document.getElementById("bp-hsup").textContent         = f(paie.heuresSuppMnt);
+      document.getElementById("bp-primes").textContent       = f(paie.primes);
+      document.getElementById("bp-gardes").textContent       = f(paie.gardes);
+      document.getElementById("bp-indem-repas").textContent  = f(paie.indemRepas);
+      document.getElementById("bp-indem-transp").textContent = f(paie.indemTransport);
+      document.getElementById("bp-absences").textContent     = "— " + f(paie.absencesMnt);
+      document.getElementById("bp-brut").textContent         = f(paie.salaireBrut);
+
+      document.getElementById("bp-sal-vieil-plaf").textContent = f(paie.cot_sal_vieillesse_plaf);
+      document.getElementById("bp-sal-vieil-dep").textContent  = f(paie.cot_sal_vieillesse_dep);
+      document.getElementById("bp-csg-ded").textContent        = f(paie.cot_csg_deductible);
+      document.getElementById("bp-csg-non").textContent        = f(paie.cot_csg_non_deductible + paie.cot_crds);
+      document.getElementById("bp-sal-chomage").textContent    = f(paie.cot_sal_chomage);
+      document.getElementById("bp-total-sal").textContent      = "— " + f(paie.totalCotSalariales);
+
+      document.getElementById("bp-pat-maladie").textContent   = f(paie.cot_pat_maladie);
+      document.getElementById("bp-pat-fam").textContent       = f(paie.cot_pat_alloc_fam);
+      document.getElementById("bp-pat-at").textContent        = f(paie.cot_pat_at);
+      document.getElementById("bp-pat-chomage").textContent   = f(paie.cot_pat_chomage);
+      document.getElementById("bp-pat-vieil-plaf").textContent = f(paie.cot_pat_vieillesse_plaf);
+      document.getElementById("bp-pat-vieil-dep").textContent  = f(paie.cot_pat_vieillesse_dep);
+      document.getElementById("bp-total-pat").textContent     = f(paie.totalCotPatronales);
+
+      document.getElementById("bp-r-brut").textContent        = f(paie.salaireBrut);
+      document.getElementById("bp-r-retenues").textContent    = "— " + f(paie.totalCotSalariales);
+      document.getElementById("bp-r-net-social").textContent  = f(paie.montantNetSocial);
+
+      document.getElementById("bp-net").textContent           = f(paie.netAPayer);
+      document.getElementById("bp-pas").textContent           = f(paie.pas);
+      document.getElementById("bp-brut-imp").textContent      = f(paie.brutImposable);
+      document.getElementById("bp-cumul").textContent         = f(paie.salaireBrut);
+
+      localStorage.removeItem("bulletin_data");
+    }
+  </script>
+
+</body>
+</html>
+<!-- ================================================================
+     FIN — pages/bulletin-print.html
+     ================================================================ -->

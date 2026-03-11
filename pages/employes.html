@@ -1,29 +1,50 @@
+<!-- ================================================================
+     pages/employes.html — MyPaie Application
+     Gestion des employés (ajout + liste)
+     Dépendances : ../css/style.css · ../js/employes.js · ../js/auth.js
+     ================================================================ -->
 <!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>App Paie — Employés</title>
+  <title>MyPaie — Employés</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/style.css" />
 </head>
 <body>
 
   <!-- ── NAVBAR ── -->
   <nav>
-    <div class="logo">App<span>Paie</span></div>
-    <ul>
-      <li><a href="dashboard.html">Tableau de bord</a></li>
-      <li><a href="employes.html" class="active"> Employés</a></li>
-      <li><a href="fiche-paie.html"> Fiche de paie</a></li>
-    </ul>
-    <div class="nav-right">
-      <span id="user-email"></span>
-      <button class="btn-deconnexion" id="btn-logout">Déconnexion</button>
+    <div class="nav-top">
+      <button class="hamburger" id="hamburger">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="logo">My<span>paie</span></div>
+      <ul class="nav-links" id="nav-menu">
+        <li><a href="dashboard.html">🏠 Tableau de bord</a></li>
+        <li><a href="employes.html" class="active">👥 Employés</a></li>
+        <li><a href="fiche-paie.html">📄 Fiche de paie</a></li>
+      </ul>
+      <div class="nav-right">
+        <span id="user-email"></span>
+        <button class="btn-deconnexion" id="btn-logout">🔓 Déconnexion</button>
+      </div>
     </div>
   </nav>
 
+  <script>
+    window.addEventListener("DOMContentLoaded", () => {
+      const hamburger = document.getElementById("hamburger");
+      const navMenu   = document.getElementById("nav-menu");
+      hamburger.addEventListener("click", (e) => { e.stopPropagation(); navMenu.classList.toggle("ouvert"); });
+      navMenu.querySelectorAll("a").forEach(a => a.addEventListener("click", () => navMenu.classList.remove("ouvert")));
+      document.addEventListener("click", () => navMenu.classList.remove("ouvert"));
+    });
+  </script>
+
   <main>
-    <h2 style="margin-bottom:1.5rem;">Gestion des Employés</h2>
+    <h2>👥 Gestion des Employés</h2>
 
     <!-- Notification -->
     <div id="notification" class="notification"></div>
@@ -33,6 +54,8 @@
       <h2>➕ Ajouter un employé</h2>
       <form id="form-employe">
         <div class="form-grid">
+
+          <!-- Identité -->
           <div class="form-group">
             <label>Nom *</label>
             <input type="text" id="nom" placeholder="DUPONT" required />
@@ -41,6 +64,24 @@
             <label>Prénom *</label>
             <input type="text" id="prenom" placeholder="Jean" required />
           </div>
+
+          <!-- Contact -->
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="email" placeholder="jean.dupont@email.com" />
+          </div>
+          <div class="form-group">
+            <label>Téléphone</label>
+            <input type="tel" id="telephone" placeholder="06 12 34 56 78" />
+          </div>
+
+          <!-- Adresse -->
+          <div class="form-group full-width">
+            <label>Adresse</label>
+            <input type="text" id="adresse" placeholder="12 rue de la Paix, 75001 Paris" />
+          </div>
+
+          <!-- Poste & Département -->
           <div class="form-group">
             <label>Poste *</label>
             <input type="text" id="poste" placeholder="Comptable" required />
@@ -58,44 +99,83 @@
               <option>Logistique</option>
             </select>
           </div>
+
+          <!-- Contrat -->
           <div class="form-group">
-            <label>Salaire de base (FCFA) *</label>
-            <input type="number" id="salaire" placeholder="150000" min="0" required />
+            <label>Type de contrat *</label>
+            <select id="typeContrat" required>
+              <option value="">-- Choisir --</option>
+              <option value="CDI Temps plein">CDI — Temps plein</option>
+              <option value="CDI Temps partiel">CDI — Temps partiel</option>
+              <option value="CDD">CDD</option>
+              <option value="Intérimaire">Intérimaire</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Date d'entrée *</label>
+            <input type="date" id="dateEntree" required />
+          </div>
+
+          <!-- Statut -->
+          <div class="form-group">
+            <label>Statut</label>
+            <select id="statut">
+              <option value="Actif">Actif</option>
+              <option value="Inactif">Inactif</option>
+            </select>
+          </div>
+
+          <!-- Salaire -->
+          <div class="form-group">
+            <label>Salaire de base (€) *</label>
+            <input type="number" id="salaire" placeholder="2500" min="0" required />
+          </div>
+
+          <!-- Identifiants RH -->
+          <div class="form-group">
+            <label>N° Sécurité sociale</label>
+            <input type="text" id="nss" placeholder="1 85 12 75 123 456 78" maxlength="20" />
           </div>
           <div class="form-group">
             <label>N° CNSS</label>
             <input type="text" id="cnss" placeholder="12345678" />
           </div>
-          <div class="form-group">
-            <label>Date d'embauche *</label>
-            <input type="date" id="dateEmbauche" required />
+
+          <!-- IBAN pleine largeur -->
+          <div class="form-group full-width">
+            <label>IBAN (coordonnées bancaires)</label>
+            <input type="text" id="iban" placeholder="FR76 3000 6000 0112 3456 7890 189" maxlength="34" />
           </div>
+
         </div>
+
         <br />
-        <button type="submit" class="btn btn-primaire">Enregistrer l'employé</button>
+        <button type="submit" class="btn btn-primaire">💾 Enregistrer l'employé</button>
       </form>
     </div>
 
-    <!-- ── TABLEAU EMPLOYÉS ── -->
+    <!-- ── TABLEAU LISTE EMPLOYÉS ── -->
     <div class="card">
       <h2>📋 Liste des employés</h2>
       <div class="table-container">
         <table>
           <thead>
             <tr>
-              <th>Nom</th>
-              <th>Prénom</th>
+              <th>Nom & Prénom</th>
               <th>Poste</th>
               <th>Département</th>
-              <th>Salaire de base</th>
+              <th>Contrat</th>
+              <th>Date d'entrée</th>
+              <th>Email</th>
+              <th>Téléphone</th>
+              <th>Statut</th>
+              <th>Salaire</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody id="tableau-employes">
             <tr>
-              <td colspan="6" style="text-align:center; color:#6b7280;">
-                Chargement...
-              </td>
+              <td colspan="10" class="td-center td-muted">Chargement...</td>
             </tr>
           </tbody>
         </table>
@@ -108,5 +188,9 @@
     import { deconnexion } from "../js/auth.js";
     document.getElementById("btn-logout").addEventListener("click", deconnexion);
   </script>
+
 </body>
 </html>
+<!-- ================================================================
+     FIN — pages/employes.html
+     ================================================================ -->

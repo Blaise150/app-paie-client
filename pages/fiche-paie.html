@@ -1,147 +1,370 @@
+<!-- ================================================================
+     pages/fiche-paie.html — MyPaie Application
+     Génération et affichage de la fiche de paie
+     Dépendances : ../css/style.css · ../js/paie.js · ../js/auth.js
+     ================================================================ -->
 <!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>App Paie — Fiche de Paie</title>
+  <title>MyPaie — Fiche de Paie</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/style.css" />
 </head>
 <body>
 
   <!-- ── NAVBAR ── -->
   <nav>
-    <div class="logo"> App<span>Paie</span></div>
-    <ul>
-      <li><a href="dashboard.html"> Tableau de bord</a></li>
-      <li><a href="employes.html"> Employés</a></li>
-      <li><a href="fiche-paie.html" class="active">Fiche de paie</a></li>
-    </ul>
-    <div class="nav-right">
-      <span id="user-email"></span>
-      <button class="btn-deconnexion" id="btn-logout">Déconnexion</button>
+    <div class="nav-top">
+      <button class="hamburger" id="hamburger">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="logo">My<span>paie</span></div>
+      <ul class="nav-links" id="nav-menu">
+        <li><a href="dashboard.html">🏠 Tableau de bord</a></li>
+        <li><a href="employes.html">👥 Employés</a></li>
+        <li><a href="fiche-paie.html" class="active">📄 Fiche de paie</a></li>
+      </ul>
+      <div class="nav-right">
+        <span id="user-email"></span>
+        <button class="btn-deconnexion" id="btn-logout">🔓 Déconnexion</button>
+      </div>
     </div>
   </nav>
 
-  <main>
-    <h2 style="margin-bottom:1.5rem;"> Génération de la Fiche de Paie</h2>
+  <script>
+    window.addEventListener("DOMContentLoaded", () => {
+      const hamburger = document.getElementById("hamburger");
+      const navMenu   = document.getElementById("nav-menu");
+      hamburger.addEventListener("click", (e) => { e.stopPropagation(); navMenu.classList.toggle("ouvert"); });
+      navMenu.querySelectorAll("a").forEach(a => a.addEventListener("click", () => navMenu.classList.remove("ouvert")));
+      document.addEventListener("click", () => navMenu.classList.remove("ouvert"));
+    });
+  </script>
 
-    <!-- ── FORMULAIRE ── -->
+  <main>
+    <h2>📄 Génération de la Fiche de Paie</h2>
+
+    <!-- ── FORMULAIRE PARAMÈTRES ── -->
     <div class="card">
-      <h2>⚙️ Paramètres de la paie</h2>
+      <h2>Paramètres de la paie</h2>
       <form id="form-paie">
         <div class="form-grid">
+
           <div class="form-group">
             <label>Employé *</label>
             <select id="select-employe" required>
               <option value="">Chargement...</option>
             </select>
           </div>
+
           <div class="form-group">
             <label>Période (mois) *</label>
             <input type="month" id="periode" required />
           </div>
+
           <div class="form-group">
             <label>Heures supplémentaires</label>
             <input type="number" id="heures-supp" placeholder="0" min="0" value="0" />
           </div>
+
           <div class="form-group">
             <label>Primes (€)</label>
             <input type="number" id="primes" placeholder="0" min="0" value="0" />
           </div>
+
+          <div class="form-group">
+            <label>Gardes (€)</label>
+            <input type="number" id="gardes" placeholder="0" min="0" value="0" />
+          </div>
+
           <div class="form-group">
             <label>Absences (heures)</label>
             <input type="number" id="absences" placeholder="0" min="0" value="0" />
           </div>
+
+          <div class="form-group">
+            <label>Jours travaillés (repas)</label>
+            <input type="number" id="jours-repas" placeholder="0" min="0" max="31" value="0" />
+          </div>
+
+          <div class="form-group">
+            <label>Type de contrat *</label>
+            <select id="type-contrat" required>
+              <option value="">-- Choisir --</option>
+              <option value="CDI Temps plein">CDI — Temps plein</option>
+              <option value="CDI Temps partiel">CDI — Temps partiel</option>
+              <option value="CDD">CDD</option>
+              <option value="Intérimaire">Intérimaire</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Date d'entrée</label>
+            <input type="date" id="date-entree" />
+          </div>
+
+          <div class="form-group inline">
+            <input type="checkbox" id="avec-transport" checked />
+            <label for="avec-transport">Indemnité transport (50 €)</label>
+          </div>
+
         </div>
         <br />
         <button type="submit" class="btn btn-primaire">🔢 Calculer la fiche de paie</button>
       </form>
     </div>
 
-    <!-- ── FICHE DE PAIE GÉNÉRÉE ── -->
-    <div id="fiche-paie">
+    <!-- ── FICHE GÉNÉRÉE ── -->
+    <div id="fiche-paie" style="display:none;">
 
-      <!-- En-tête fiche -->
+      <!-- En-tête employé / entreprise -->
       <div class="fiche-header">
         <div>
-          <h2>FICHE DE PAIE</h2>
+          <h2>BULLETIN DE SALAIRE</h2>
           <div class="fiche-employe">
             <strong id="fiche-nom"></strong><br>
-            <span id="fiche-poste"></span>
+            <span id="fiche-poste"></span><br>
+            <span id="fiche-adresse"></span><br>
+            Contrat : <strong id="fiche-contrat"></strong><br>
+            Date d'entrée : <span id="fiche-date-entree"></span>
           </div>
         </div>
-        <div style="text-align:right;">
-          <div style="font-size:0.85rem; color:#6b7280;">Période</div>
-          <div style="font-weight:700;" id="fiche-periode"></div>
-          <div style="font-size:0.75rem; margin-top:0.5rem; color:#6b7280;">
-            Généré le : <span id="fiche-date"></span>
-          </div>
+        <div class="fiche-header-right">
+          <div class="fiche-meta-label">Période</div>
+          <div class="fiche-meta-value" id="fiche-periode"></div>
+          <div class="fiche-meta-label">Matricule</div>
+          <div class="fiche-meta-value" id="fiche-matricule"></div>
+          <div class="fiche-meta-label">N° SS</div>
+          <div class="fiche-meta-value" id="fiche-nss"></div>
+          <div class="fiche-meta-label">Émis le</div>
+          <div class="fiche-meta-value" id="fiche-date"></div>
         </div>
       </div>
 
-      <!-- ── GAINS ── -->
-      <div class="fiche-section-title"> GAINS</div>
+      <!-- ══ RÉMUNÉRATION BRUTE ══ -->
+      <div class="fiche-section-title">💰 RÉMUNÉRATION BRUTE</div>
+      <div class="fiche-tableau-header">
+        <span>Libellé</span>
+        <span>Base</span>
+        <span class="col-rouge">Part salariale</span>
+        <span class="col-bleu">Part patronale</span>
+        <span>Montant</span>
+      </div>
+
       <div class="fiche-ligne">
         <span>Salaire de base</span>
-        <span><span id="fiche-base"></span> €</span>
+        <span>151.67h</span><span>—</span><span>—</span>
+        <span id="fiche-base"></span>
       </div>
       <div class="fiche-ligne">
-        <span>Heures supplémentaires (×1.5)</span>
-        <span><span id="fiche-hsup"></span>€</span>
+        <span>Heures supplémentaires (×1.25)</span>
+        <span>—</span><span>—</span><span>—</span>
+        <span id="fiche-hsup"></span>
       </div>
       <div class="fiche-ligne">
         <span>Primes</span>
-        <span><span id="fiche-primes"></span> €</span>
+        <span>—</span><span>—</span><span>—</span>
+        <span id="fiche-primes"></span>
+      </div>
+      <div class="fiche-ligne">
+        <span>Gardes</span>
+        <span>—</span><span>—</span><span>—</span>
+        <span id="fiche-gardes"></span>
+      </div>
+      <div class="fiche-ligne">
+        <span>Indemnité repas</span>
+        <span>6.91 €/j</span><span>—</span><span>—</span>
+        <span id="fiche-indem-repas"></span>
+      </div>
+      <div class="fiche-ligne">
+        <span>Indemnité transport</span>
+        <span>Forfait</span><span>—</span><span>—</span>
+        <span id="fiche-indem-transp"></span>
       </div>
       <div class="fiche-ligne rouge-text">
         <span>Déductions absences</span>
-        <span>- <span id="fiche-absences"></span> €</span>
+        <span>—</span><span>—</span><span>—</span>
+        <span>— <span id="fiche-absences"></span></span>
       </div>
       <div class="fiche-ligne total">
-        <span>SALAIRE BRUT</span>
-        <span><span id="fiche-brut"></span> €</span>
+        <span>TOTAL RÉMUNÉRATION BRUTE</span>
+        <span></span><span></span><span></span>
+        <span id="fiche-brut"></span>
       </div>
 
-      <!-- ── RETENUES ── -->
-      <div class="fiche-section-title" style="color:#c81e1e;"> RETENUES</div>
-      <div class="fiche-ligne rouge-text">
-        <span>CNSS Employé (3.6%)</span>
-        <span>- <span id="fiche-cnss"></span> €</span>
+      <!-- ══ COTISATIONS SOCIALES ══ -->
+      <div class="fiche-section-title rouge">📋 COTISATIONS SOCIALES</div>
+      <div class="fiche-tableau-header">
+        <span>Libellé</span>
+        <span>Base</span>
+        <span class="col-rouge">Taux salarié</span>
+        <span class="col-bleu">Taux patronal</span>
+        <span>À déduire</span>
       </div>
-      <div class="fiche-ligne rouge-text">
-        <span>Mutuelle santé</span>
-        <span>- <span id="fiche-mutuelle"></span>€</span>
+
+      <div class="fiche-ligne">
+        <span>SS Maladie</span>
+        <span>Brut</span>
+        <span class="col-rouge">0.00%</span>
+        <span class="col-bleu">13.00%</span>
+        <span id="fiche-cot-maladie"></span>
       </div>
-      <div class="fiche-ligne rouge-text">
-        <span>IRPP (barème progressif)</span>
-        <span>- <span id="fiche-irpp"></span> €</span>
+      <div class="fiche-ligne">
+        <span>SS Allocations familiales</span>
+        <span>Brut</span>
+        <span class="col-rouge">—</span>
+        <span class="col-bleu">5.25%</span>
+        <span>—</span>
+      </div>
+      <div class="fiche-ligne">
+        <span>SS Accidents du travail</span>
+        <span>Brut</span>
+        <span class="col-rouge">—</span>
+        <span class="col-bleu">2.00%</span>
+        <span>—</span>
+      </div>
+      <div class="fiche-ligne">
+        <span>Allocation chômage</span>
+        <span>Brut</span>
+        <span class="col-rouge">0.00%</span>
+        <span class="col-bleu">4.05%</span>
+        <span id="fiche-cot-chomage"></span>
+      </div>
+      <div class="fiche-ligne">
+        <span>SS Vieillesse (plafonné)</span>
+        <span>≤ 3 864 €</span>
+        <span class="col-rouge">6.90%</span>
+        <span class="col-bleu">8.55%</span>
+        <span id="fiche-cot-vieill-plaf"></span>
+      </div>
+      <div class="fiche-ligne">
+        <span>SS Vieillesse (déplafonné)</span>
+        <span>Brut</span>
+        <span class="col-rouge">0.40%</span>
+        <span class="col-bleu">1.90%</span>
+        <span id="fiche-cot-vieill-dep"></span>
+      </div>
+      <div class="fiche-ligne">
+        <span>CSG déductible</span>
+        <span>98.25% brut</span>
+        <span class="col-rouge">6.68%</span>
+        <span class="col-bleu">—</span>
+        <span id="fiche-csg-deductible"></span>
+      </div>
+      <div class="fiche-ligne">
+        <span>CSG non déductible</span>
+        <span>98.25% brut</span>
+        <span class="col-rouge">2.30%</span>
+        <span class="col-bleu">—</span>
+        <span id="fiche-csg-non-deductible"></span>
+      </div>
+      <div class="fiche-ligne">
+        <span>CRDS</span>
+        <span>98.25% brut</span>
+        <span class="col-rouge">0.50%</span>
+        <span class="col-bleu">—</span>
+        <span id="fiche-crds"></span>
       </div>
       <div class="fiche-ligne total rouge-text">
-        <span>TOTAL RETENUES</span>
-        <span>- <span id="fiche-retenues"></span> €</span>
+        <span>TOTAL COTISATIONS SALARIALES</span>
+        <span></span><span></span><span></span>
+        <span>— <span id="fiche-total-cot-sal"></span></span>
       </div>
 
-      <!-- ── NET À PAYER ── -->
+      <!-- ══ NETS ══ -->
+      <div class="fiche-section-title">📊 NETS</div>
+
+      <div class="fiche-ligne">
+        <span>Montant net social</span>
+        <span></span><span></span><span></span>
+        <span id="fiche-net-social"></span>
+      </div>
+      <div class="fiche-ligne">
+        <span>Brut imposable</span>
+        <span></span><span></span><span></span>
+        <span id="fiche-brut-imposable"></span>
+      </div>
+      <div class="fiche-ligne rouge-text">
+        <span>Impôt sur le revenu (PAS)</span>
+        <span></span><span></span><span></span>
+        <span>— <span id="fiche-pas"></span></span>
+      </div>
       <div class="fiche-ligne net">
-        <span> NET À PAYER</span>
-        <span><span id="fiche-net"></span> €</span>
+        <span>💳 NET À PAYER</span>
+        <span></span><span></span><span></span>
+        <span id="fiche-net"></span>
       </div>
 
-      <!-- Boutons actions -->
-      <div style="display:flex; gap:1rem; margin-top:1.5rem; flex-wrap:wrap;">
-        <button class="btn btn-vert" id="btn-sauvegarder"> Sauvegarder</button>
-        <button class="btn btn-primaire" onclick="imprimerFiche()"> Imprimer</button>
+      <!-- ══ CHARGES PATRONALES ══ -->
+      <div class="fiche-section-title bleu">🏢 CHARGES PATRONALES (récapitulatif)</div>
+
+      <div class="fiche-ligne">
+        <span>SS Maladie (13.00%)</span>
+        <span></span><span></span><span></span>
+        <span id="fiche-pat-maladie"></span>
+      </div>
+      <div class="fiche-ligne">
+        <span>SS Allocations familiales (5.25%)</span>
+        <span></span><span></span><span></span>
+        <span id="fiche-pat-alloc-fam"></span>
+      </div>
+      <div class="fiche-ligne">
+        <span>SS Accidents du travail (2.00%)</span>
+        <span></span><span></span><span></span>
+        <span id="fiche-pat-at"></span>
+      </div>
+      <div class="fiche-ligne">
+        <span>SS Vieillesse plafonné (8.55%)</span>
+        <span></span><span></span><span></span>
+        <span id="fiche-pat-vieill-plaf"></span>
+      </div>
+      <div class="fiche-ligne">
+        <span>SS Vieillesse déplafonné (1.90%)</span>
+        <span></span><span></span><span></span>
+        <span id="fiche-pat-vieill-dep"></span>
+      </div>
+      <div class="fiche-ligne">
+        <span>Allocation chômage (4.05%)</span>
+        <span></span><span></span><span></span>
+        <span id="fiche-pat-chomage"></span>
+      </div>
+      <div class="fiche-ligne">
+        <span>FNAL (0.10%)</span>
+        <span></span><span></span><span></span>
+        <span id="fiche-pat-fnal"></span>
+      </div>
+      <div class="fiche-ligne total bleu-text">
+        <span>TOTAL CHARGES PATRONALES</span>
+        <span></span><span></span><span></span>
+        <span id="fiche-total-cot-pat"></span>
       </div>
 
-    </div>
+      <!-- IBAN & mentions -->
+      <div class="fiche-iban-box">
+        🏦 Coordonnées bancaires : <strong id="fiche-iban">—</strong>
+      </div>
+      <p class="fiche-mention">Conservez ce bulletin de paie sans limitation de durée</p>
+
+      <!-- Actions -->
+      <div class="fiche-actions">
+        <button class="btn btn-vert"     id="btn-sauvegarder">💾 Sauvegarder</button>
+        <button class="btn btn-primaire" onclick="imprimerFiche()">🖨️ Imprimer</button>
+      </div>
+
+    </div><!-- fin #fiche-paie -->
   </main>
 
   <script type="module">
     import "../js/paie.js";
     import { deconnexion } from "../js/auth.js";
     document.getElementById("btn-logout").addEventListener("click", deconnexion);
-    document.getElementById("fiche-date").textContent =
-      new Date().toLocaleDateString("fr-FR");
+    document.getElementById("fiche-date").textContent = new Date().toLocaleDateString("fr-FR");
   </script>
+
 </body>
 </html>
+<!-- ================================================================
+     FIN — pages/fiche-paie.html
+     ================================================================ -->

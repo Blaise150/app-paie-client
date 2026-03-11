@@ -1,64 +1,81 @@
+<!-- ================================================================
+     index.html — MyPaie Application
+     Page de connexion (racine du projet)
+     Dépendances : css/style.css · js/auth.js
+     ================================================================ -->
 <!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>App Paie — Connexion</title>
+  <title>MyPaie — Connexion</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css" />
-  <style>
-    .form-group input {
-      width: 100%;
-      padding: 0.75rem 1rem;
-      border: 1.5px solid #e5e7eb;
-      border-radius: 8px;
-      font-size: 1rem;
-      outline: none;
-    }
-    .form-group input:focus { border-color: #1a56db; }
-    .btn-login {
-      width: 100%;
-      padding: 0.85rem;
-      background: #1a56db;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 1rem;
-    }
-    .btn-login:hover { background: #1341b5; }
-    .form-group { margin-bottom: 1rem; }
-    .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.4rem; color: #374151; }
-  </style>
 </head>
 <body>
+
   <div class="login-container">
     <div class="login-card">
 
-      <!-- Logo -->
-      <div style="text-align:center; font-size:2.5rem; margin-bottom:0.5rem;"></div>
-      <h1>App de Paie</h1>
-      <p class="subtitle">Connectez-vous pour accéder au système</p>
+      <!-- Logo MyPaie -->
+      <div class="logo-wrap">
+        <div class="logo-icon-box">
+          <svg width="42" height="42" viewBox="0 0 120 120">
+            <defs>
+              <linearGradient id="lg" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%"   stop-color="#1A7ABF"/>
+                <stop offset="100%" stop-color="#38BDF8"/>
+              </linearGradient>
+            </defs>
+            <!-- M bleu clair -->
+            <g stroke="#BAE6FD" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none">
+              <polyline points="18,94 18,32 60,66 102,32 102,94"/>
+            </g>
+            <!-- P bleu vif entrelacé -->
+            <line x1="36" y1="94" x2="36" y2="32" stroke="url(#lg)" stroke-width="10" stroke-linecap="round"/>
+            <path d="M36 32 Q80 32 80 56 Q80 80 36 80" fill="none" stroke="url(#lg)" stroke-width="10" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="logo-text">
+          <span class="logo-my">My</span>
+          <span class="logo-paie">Paie</span>
+        </div>
+      </div>
 
-      <!-- Formulaire -->
+      <p class="login-subtitle">Connectez-vous pour accéder au système</p>
+      <div class="divider"></div>
+
+      <!-- Formulaire de connexion -->
       <form id="form-login">
+
         <div class="form-group">
           <label for="email">Adresse e-mail</label>
           <input type="email" id="email" placeholder="admin@entreprise.com" required />
         </div>
+
         <div class="form-group">
           <label for="motdepasse">Mot de passe</label>
-          <input type="password" id="motdepasse" placeholder="••••••••" required />
+          <div class="input-password-wrap">
+            <input type="password" id="motdepasse" placeholder="••••••••" required />
+            <button type="button" id="toggle-mdp" class="btn-toggle-mdp">👁</button>
+          </div>
+          <a href="#" id="forgot-link" class="forgot">Mot de passe oublié ?</a>
         </div>
+
         <div id="erreur"></div>
-        <button type="submit" class="btn-login"> Se connecter</button>
+        <button type="submit" class="btn-login">Se connecter</button>
+
       </form>
+
+      <p class="footer-note">© 2026 MyPaie · Tous droits réservés</p>
 
     </div>
   </div>
 
-  <!-- Firebase Auth -->
   <script type="module" src="js/auth.js"></script>
+
 </body>
 </html>
+<!-- ================================================================
+     FIN — index.html
+     ================================================================ -->
