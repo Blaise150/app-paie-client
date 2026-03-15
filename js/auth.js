@@ -1,6 +1,9 @@
-// ============================================
-// auth.js — Connexion / Déconnexion
-// ============================================
+// ================================================================
+// js/auth.js — MyPaie Application
+// Authentification Firebase : connexion, déconnexion,
+// réinitialisation mot de passe, vérification session
+// ================================================================
+
 import { auth } from "./firebase-config.js";
 import {
   signInWithEmailAndPassword,
@@ -9,45 +12,50 @@ import {
   sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
 
-// ── Connexion utilisateur ──────────────────
+
+// ── Connexion utilisateur ──────────────────────────────────────
 export async function connexion(email, motDePasse) {
   try {
-    const userCredential = await signInWithEmailAndPassword(auth, email, motDePasse);
-    console.log("Connecté :", userCredential.user.email);
+    await signInWithEmailAndPassword(auth, email, motDePasse);
     window.location.href = "pages/dashboard.html";
   } catch (error) {
-    let message = "Erreur de connexion.";
-    if (error.code === "auth/user-not-found") message = "Utilisateur introuvable.";
-    if (error.code === "auth/wrong-password")  message = "Mot de passe incorrect.";
-    if (error.code === "auth/invalid-email")   message = "Email invalide.";
-    afficherErreur(message);
+    let message = "Identifiants incorrects. Veuillez réessayer.";
+    if (error.code === "auth/user-not-found")     message = "Aucun compte associé à cet email.";
+    if (error.code === "auth/wrong-password")     message = "Mot de passe incorrect.";
+    if (error.code === "auth/invalid-email")      message = "Adresse email invalide.";
+    if (error.code === "auth/too-many-requests")  message = "Trop de tentatives. Réessayez plus tard.";
+    if (error.code === "auth/invalid-credential") message = "Email ou mot de passe incorrect.";
+    afficherMessage(message, "erreur");
   }
 }
 
-// ── Mot de passe oublié ───────────────────
+
+// ── Mot de passe oublié ────────────────────────────────────────
 export async function motDePasseOublie(email) {
   if (!email) {
-    afficherErreur("Entrez votre email ci-dessus puis cliquez sur le lien.");
+    afficherMessage("Saisissez votre email ci-dessus puis cliquez sur le lien.", "info");
     return;
   }
   try {
     await sendPasswordResetEmail(auth, email);
-    afficherSucces("Email de réinitialisation envoyé ! Vérifiez votre boîte mail.");
+    afficherMessage("✅ Email de réinitialisation envoyé ! Vérifiez votre boîte mail.", "succes");
   } catch (error) {
-    let message = "Erreur lors de l'envoi.";
+    let message = "Erreur lors de l'envoi de l'email.";
     if (error.code === "auth/user-not-found") message = "Aucun compte avec cet email.";
-    if (error.code === "auth/invalid-email")  message = "Email invalide.";
-    afficherErreur(message);
+    if (error.code === "auth/invalid-email")  message = "Adresse email invalide.";
+    afficherMessage(message, "erreur");
   }
 }
 
-// ── Déconnexion ───────────────────────────
+
+// ── Déconnexion ────────────────────────────────────────────────
 export async function deconnexion() {
   await signOut(auth);
   window.location.href = "../index.html";
 }
 
-// ── Vérification si connecté ──────────────
+
+// ── Vérification session (pages protégées) ─────────────────────
 export function verifierConnexion() {
   onAuthStateChanged(auth, (user) => {
     if (!user) {
@@ -59,59 +67,66 @@ export function verifierConnexion() {
   });
 }
 
-// ── Afficher message d'erreur ─────────────
-function afficherErreur(message) {
-  const errEl = document.getElementById("erreur");
-  if (errEl) {
-    errEl.style.color = "#EF4444";
-    errEl.textContent = message;
-    errEl.style.display = "block";
+
+// ── Afficher un message dans #erreur ──────────────────────────
+// type : "erreur" | "succes" | "info"
+function afficherMessage(message, type = "erreur") {
+  const el = document.getElementById("erreur");
+  if (!el) return;
+  el.classList.remove("msg-erreur", "msg-succes", "msg-info");
+  el.classList.add("msg-" + type);
+  el.textContent = message;
+  // Pour succès/info : effacement automatique après 6 s
+  if (type !== "erreur") {
+    setTimeout(() => masquerMessage(), 6000);
   }
 }
 
-// ── Afficher message de succès ────────────
-function afficherSucces(message) {
-  const errEl = document.getElementById("erreur");
-  if (errEl) {
-    errEl.style.color = "#10B981";
-    errEl.textContent = message;
-    errEl.style.display = "block";
-  }
+function masquerMessage() {
+  const el = document.getElementById("erreur");
+  if (!el) return;
+  el.style.display = "none";
+  el.textContent = "";
+  el.classList.remove("msg-erreur", "msg-succes", "msg-info");
 }
 
-// ── Événement formulaire de login ─────────
+
+// ── Événement : soumission du formulaire ───────────────────────
 const formLogin = document.getElementById("form-login");
 if (formLogin) {
   formLogin.addEventListener("submit", (e) => {
     e.preventDefault();
-    const email = document.getElementById("email").value;
+    masquerMessage(); // efface le message précédent avant chaque tentative
+    const email = document.getElementById("email").value.trim();
     const mdp   = document.getElementById("motdepasse").value;
     connexion(email, mdp);
   });
 }
 
-// ── Événement lien mot de passe oublié ────
+
+// ── Événement : lien "Mot de passe oublié ?" ───────────────────
 const lienOublie = document.getElementById("forgot-link");
 if (lienOublie) {
   lienOublie.addEventListener("click", (e) => {
     e.preventDefault();
     e.stopPropagation(); // empêche le formulaire de se soumettre
-
     const email = document.getElementById("email").value.trim();
     motDePasseOublie(email);
   });
 }
-// ── Afficher / Masquer mot de passe ───────
+
+
+// ── Événement : toggle affichage mot de passe ─────────────────
 const toggleMdp = document.getElementById("toggle-mdp");
 if (toggleMdp) {
   toggleMdp.addEventListener("click", () => {
     const input = document.getElementById("motdepasse");
-    if (input.type === "password") {
-      input.type = "text";
-      toggleMdp.textContent = "🙈";
-    } else {
-      input.type = "password";
-      toggleMdp.textContent = "👁";
-    }
+    const visible = input.type === "text";
+    input.type = visible ? "password" : "text";
+    toggleMdp.textContent = visible ? "👁" : "🙈";
   });
 }
+
+// ================================================================
+// FIN — js/auth.js
+// ================================================================
