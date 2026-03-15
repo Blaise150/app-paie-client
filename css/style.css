@@ -388,14 +388,23 @@ a.forgot:hover { color: var(--bleu-sky); }
 }
 .btn-login:active { transform: translateY(0); }
 
-/* Message d'erreur */
+/* Zone message login — cachée par défaut, colorée par auth.js via classList */
 #erreur {
-  font-size: 13px;
-  color: #EF4444;
-  margin-top: 4px;
-  min-height: 18px;
+  padding: 0.6rem 0.9rem;
+  border-radius: 7px;
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 500;
   display: none;
+  animation: fadeUp .25s ease;
 }
+#erreur.msg-erreur { background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA; display: block; }
+#erreur.msg-succes { background: #F0FDF4; color: #16A34A; border: 1px solid #BBF7D0; display: block; }
+#erreur.msg-info   { background: #EFF6FF; color: #2563EB; border: 1px solid #BFDBFE; display: block; }
+/* Variantes colorées — appliquées par auth.js via classList */
+#erreur.msg-erreur { background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA; display: block; }
+#erreur.msg-succes { background: #F0FDF4; color: #16A34A; border: 1px solid #BBF7D0; display: block; }
+#erreur.msg-info   { background: #EFF6FF; color: #2563EB; border: 1px solid #BFDBFE; display: block; }
 
 /* Mention pied de carte */
 .footer-note {
