@@ -17,33 +17,30 @@ const TAUX = {
 
   // ── Salarié (part salariale) ───────────
   SALARIE: {
-    SS_MALADIE:           0.0000,  // 0% salarié (tout patronal)
-    SS_VIEILLESSE_PLAF:   0.0690,  // 6.90% plafonné SS
-    SS_VIEILLESSE_DEPLAF: 0.0040,  // 0.40% déplafonné
-    CHOMAGE:              0.0000,  // 0% salarié depuis 2018
-    IRCANTEC_A:           0.0300,  // 3.00% tranche A (si applicable)
-    CSG_DEDUCTIBLE:       0.0668,  // 6.68% CSG déductible
-    CSG_NON_DEDUCTIBLE:   0.0230,  // 2.30% CSG non déductible (2.4 - 0.1 CRDS)
-    CRDS:                 0.0050,  // 0.50% CRDS
+    SS_MALADIE:           0.0000,
+    SS_VIEILLESSE_PLAF:   0.0690,
+    SS_VIEILLESSE_DEPLAF: 0.0040,
+    CHOMAGE:              0.0000,
+    IRCANTEC_A:           0.0300,
+    CSG_DEDUCTIBLE:       0.0668,
+    CSG_NON_DEDUCTIBLE:   0.0230,
+    CRDS:                 0.0050,
   },
 
   // ── Employeur (part patronale) ─────────
   PATRONAL: {
-    SS_MALADIE:           0.1300,  // 13.00%
-    SS_ALLOC_FAMILIALE:   0.0525,  // 5.25% (taux réduit < 3.5 SMIC)
-    SS_AT:                0.0200,  // 2.00% (variable selon secteur)
-    SS_VIEILLESSE_PLAF:   0.0855,  // 8.55% plafonné
-    SS_VIEILLESSE_DEPLAF: 0.0190,  // 1.90% déplafonné
-    CHOMAGE:              0.0405,  // 4.05%
-    FNAL:                 0.0010,  // 0.10% FNAL
+    SS_MALADIE:           0.1300,
+    SS_ALLOC_FAMILIALE:   0.0525,
+    SS_AT:                0.0200,
+    SS_VIEILLESSE_PLAF:   0.0855,
+    SS_VIEILLESSE_DEPLAF: 0.0190,
+    CHOMAGE:              0.0405,
+    FNAL:                 0.0010,
   },
 
-  // ── Plafond SS 2024 ────────────────────
-  PLAFOND_SS_MENSUEL: 3864,        // 3 864 €/mois en 2024
-
-  // ── Indemnités forfaitaires ────────────
-  INDEMNITE_REPAS:      6.91,      // Ticket repas exonéré /jour
-  INDEMNITE_TRANSPORT:  50,        // Forfait transport mensuel (remboursement 50% navigo)
+  PLAFOND_SS_MENSUEL: 3864,
+  INDEMNITE_REPAS:      6.91,
+  INDEMNITE_TRANSPORT:  50,
 };
 
 // ══════════════════════════════════════════
@@ -59,14 +56,16 @@ async function chargerListeEmployes() {
   snapshot.forEach((docSnap) => {
     const e = docSnap.data();
     const opt = document.createElement("option");
-    opt.value = docSnap.id;
+    opt.value             = docSnap.id;
     opt.dataset.salaire   = e.salaireBase;
     opt.dataset.nom       = `${e.prenom} ${e.nom}`;
+    opt.dataset.prenom    = e.prenom    || "";   // ← pour l'email
+    opt.dataset.email     = e.email     || "";   // ← pour l'email
     opt.dataset.poste     = e.poste;
-    opt.dataset.matricule = e.matricule  || "";
-    opt.dataset.nss       = e.nss        || "";
-    opt.dataset.adresse   = e.adresse    || "";
-    opt.dataset.iban      = e.iban       || "";
+    opt.dataset.matricule = e.matricule || "";
+    opt.dataset.nss       = e.nss       || "";
+    opt.dataset.adresse   = e.adresse   || "";
+    opt.dataset.iban      = e.iban      || "";
     opt.textContent = `${e.prenom} ${e.nom} — ${e.poste}`;
     select.appendChild(opt);
   });
@@ -77,95 +76,64 @@ async function chargerListeEmployes() {
 // ══════════════════════════════════════════
 function calculerPaie(salaireBase, options = {}) {
   const {
-    heuresSupp     = 0,
-    primes         = 0,
-    gardes         = 0,
-    absences       = 0,
-    joursRepas     = 0,   // nombre de jours travaillés (pour indemnité repas)
-    avecTransport  = true,
+    heuresSupp    = 0,
+    primes        = 0,
+    gardes        = 0,
+    absences      = 0,
+    joursRepas    = 0,
+    avecTransport = true,
   } = options;
 
-  const tauxHoraire   = salaireBase / 151.67;  // Base légale France : 151h67/mois
-  const heuresSuppMnt = heuresSupp * tauxHoraire * 1.25;  // Majoration 25%
+  const tauxHoraire   = salaireBase / 151.67;
+  const heuresSuppMnt = heuresSupp * tauxHoraire * 1.25;
   const absencesMnt   = absences   * tauxHoraire;
 
-  // ── Indemnités (non soumises aux cotisations) ──
   const indemRepas     = joursRepas * TAUX.INDEMNITE_REPAS;
   const indemTransport = avecTransport ? TAUX.INDEMNITE_TRANSPORT : 0;
 
-  // ── Rémunération brute (soumise aux cotisations) ──
-  const salaireBrut = salaireBase + heuresSuppMnt + primes + gardes - absencesMnt;
+  const salaireBrut  = salaireBase + heuresSuppMnt + primes + gardes - absencesMnt;
+  const assiettePlaf = Math.min(salaireBrut, TAUX.PLAFOND_SS_MENSUEL);
+  const assietteDepl = salaireBrut;
+  const assietteCSG  = salaireBrut * 0.9825;
 
-  // ── Assiette plafonnée / déplafonnée ──
-  const assiettePlaf   = Math.min(salaireBrut, TAUX.PLAFOND_SS_MENSUEL);
-  const assietteDepl   = salaireBrut;
-  // Assiette CSG/CRDS = 98.25% du brut
-  const assietteCSG    = salaireBrut * 0.9825;
-
-  // ════════════════════════════════════════
-  // COTISATIONS SALARIALES
-  // ════════════════════════════════════════
-  const cot_sal_maladie        = assietteDepl  * TAUX.SALARIE.SS_MALADIE;
-  const cot_sal_vieillesse_plaf= assiettePlaf  * TAUX.SALARIE.SS_VIEILLESSE_PLAF;
-  const cot_sal_vieillesse_dep = assietteDepl  * TAUX.SALARIE.SS_VIEILLESSE_DEPLAF;
-  const cot_sal_chomage        = assietteDepl  * TAUX.SALARIE.CHOMAGE;
-  const cot_csg_deductible     = assietteCSG   * TAUX.SALARIE.CSG_DEDUCTIBLE;
-  const cot_csg_non_deductible = assietteCSG   * TAUX.SALARIE.CSG_NON_DEDUCTIBLE;
-  const cot_crds               = assietteCSG   * TAUX.SALARIE.CRDS;
+  const cot_sal_maladie         = assietteDepl * TAUX.SALARIE.SS_MALADIE;
+  const cot_sal_vieillesse_plaf = assiettePlaf * TAUX.SALARIE.SS_VIEILLESSE_PLAF;
+  const cot_sal_vieillesse_dep  = assietteDepl * TAUX.SALARIE.SS_VIEILLESSE_DEPLAF;
+  const cot_sal_chomage         = assietteDepl * TAUX.SALARIE.CHOMAGE;
+  const cot_csg_deductible      = assietteCSG  * TAUX.SALARIE.CSG_DEDUCTIBLE;
+  const cot_csg_non_deductible  = assietteCSG  * TAUX.SALARIE.CSG_NON_DEDUCTIBLE;
+  const cot_crds                = assietteCSG  * TAUX.SALARIE.CRDS;
 
   const totalCotSalariales =
-    cot_sal_maladie +
-    cot_sal_vieillesse_plaf +
-    cot_sal_vieillesse_dep +
-    cot_sal_chomage +
-    cot_csg_deductible +
-    cot_csg_non_deductible +
-    cot_crds;
+    cot_sal_maladie + cot_sal_vieillesse_plaf + cot_sal_vieillesse_dep +
+    cot_sal_chomage + cot_csg_deductible + cot_csg_non_deductible + cot_crds;
 
-  // ── Montant net social ──
   const montantNetSocial = salaireBrut - totalCotSalariales + indemRepas + indemTransport;
+  const brutImposable    = montantNetSocial - indemTransport;
+  const pas              = calculerPAS(brutImposable);
+  const netAPayer        = montantNetSocial - pas;
 
-  // ── Brut imposable (net social + CSG non déductible + CRDS) ──
-  const brutImposable = montantNetSocial - indemTransport; // transport exonéré IR
-
-  // ── PAS (Prélèvement à la source) ──
-  const pas = calculerPAS(brutImposable);
-
-  // ── Net à payer ──
-  const netAPayer = montantNetSocial - pas;
-
-  // ════════════════════════════════════════
-  // COTISATIONS PATRONALES
-  // ════════════════════════════════════════
-  const cot_pat_maladie        = assietteDepl * TAUX.PATRONAL.SS_MALADIE;
-  const cot_pat_alloc_fam      = assietteDepl * TAUX.PATRONAL.SS_ALLOC_FAMILIALE;
-  const cot_pat_at             = assietteDepl * TAUX.PATRONAL.SS_AT;
-  const cot_pat_vieillesse_plaf= assiettePlaf * TAUX.PATRONAL.SS_VIEILLESSE_PLAF;
-  const cot_pat_vieillesse_dep = assietteDepl * TAUX.PATRONAL.SS_VIEILLESSE_DEPLAF;
-  const cot_pat_chomage        = assietteDepl * TAUX.PATRONAL.CHOMAGE;
-  const cot_pat_fnal           = assietteDepl * TAUX.PATRONAL.FNAL;
+  const cot_pat_maladie         = assietteDepl * TAUX.PATRONAL.SS_MALADIE;
+  const cot_pat_alloc_fam       = assietteDepl * TAUX.PATRONAL.SS_ALLOC_FAMILIALE;
+  const cot_pat_at              = assietteDepl * TAUX.PATRONAL.SS_AT;
+  const cot_pat_vieillesse_plaf = assiettePlaf * TAUX.PATRONAL.SS_VIEILLESSE_PLAF;
+  const cot_pat_vieillesse_dep  = assietteDepl * TAUX.PATRONAL.SS_VIEILLESSE_DEPLAF;
+  const cot_pat_chomage         = assietteDepl * TAUX.PATRONAL.CHOMAGE;
+  const cot_pat_fnal            = assietteDepl * TAUX.PATRONAL.FNAL;
 
   const totalCotPatronales =
-    cot_pat_maladie +
-    cot_pat_alloc_fam +
-    cot_pat_at +
-    cot_pat_vieillesse_plaf +
-    cot_pat_vieillesse_dep +
-    cot_pat_chomage +
-    cot_pat_fnal;
+    cot_pat_maladie + cot_pat_alloc_fam + cot_pat_at +
+    cot_pat_vieillesse_plaf + cot_pat_vieillesse_dep + cot_pat_chomage + cot_pat_fnal;
 
   return {
-    // Rémunération
-    salaireBase:          arrondir(salaireBase),
-    heuresSuppMnt:        arrondir(heuresSuppMnt),
-    primes:               arrondir(primes),
-    gardes:               arrondir(gardes),
-    indemRepas:           arrondir(indemRepas),
-    indemTransport:       arrondir(indemTransport),
-    absencesMnt:          arrondir(absencesMnt),
-    salaireBrut:          arrondir(salaireBrut),
-
-    // Cotisations salariales
+    salaireBase:              arrondir(salaireBase),
+    heuresSuppMnt:            arrondir(heuresSuppMnt),
+    primes:                   arrondir(primes),
+    gardes:                   arrondir(gardes),
+    indemRepas:               arrondir(indemRepas),
+    indemTransport:           arrondir(indemTransport),
+    absencesMnt:              arrondir(absencesMnt),
+    salaireBrut:              arrondir(salaireBrut),
     cot_sal_maladie:          arrondir(cot_sal_maladie),
     cot_sal_vieillesse_plaf:  arrondir(cot_sal_vieillesse_plaf),
     cot_sal_vieillesse_dep:   arrondir(cot_sal_vieillesse_dep),
@@ -174,14 +142,10 @@ function calculerPaie(salaireBase, options = {}) {
     cot_csg_non_deductible:   arrondir(cot_csg_non_deductible),
     cot_crds:                 arrondir(cot_crds),
     totalCotSalariales:       arrondir(totalCotSalariales),
-
-    // Nets
-    montantNetSocial:     arrondir(montantNetSocial),
-    brutImposable:        arrondir(brutImposable),
-    pas:                  arrondir(pas),
-    netAPayer:            arrondir(netAPayer),
-
-    // Cotisations patronales
+    montantNetSocial:         arrondir(montantNetSocial),
+    brutImposable:            arrondir(brutImposable),
+    pas:                      arrondir(pas),
+    netAPayer:                arrondir(netAPayer),
     cot_pat_maladie:          arrondir(cot_pat_maladie),
     cot_pat_alloc_fam:        arrondir(cot_pat_alloc_fam),
     cot_pat_at:               arrondir(cot_pat_at),
@@ -194,30 +158,32 @@ function calculerPaie(salaireBase, options = {}) {
 }
 
 // ══════════════════════════════════════════
-// CALCUL PAS (Prélèvement à la source)
-// Barème mensuel 2024 — taux neutre
+// CALCUL PAS — Barème mensuel 2024
 // ══════════════════════════════════════════
 function calculerPAS(brutImposable) {
   const annuel = brutImposable * 12;
   let taux = 0;
-
   if      (annuel <= 10777)  taux = 0;
   else if (annuel <= 27478)  taux = 0.11;
   else if (annuel <= 78570)  taux = 0.30;
   else if (annuel <= 168994) taux = 0.41;
   else                       taux = 0.45;
-
   return brutImposable * taux;
 }
 
 // ══════════════════════════════════════════
-// AFFICHER LA FICHE — dans la page courante
+// AFFICHER LA FICHE
 // ══════════════════════════════════════════
 function afficherFichePaie(employe, periode, paie) {
-  // garde les données pour le bouton "Ouvrir bulletin"
   window._bulletinData = { employe, periode, paie };
 
-  // Affichage résumé dans la page (optionnel)
+  // ✉️ Données email — accessibles depuis fiche-paie.html
+  window._ficheEmploye = {
+    email:  employe.email  || "",
+    nom:    employe.nom    || "",
+    prenom: employe.prenom || "",
+  };
+
   setTxt("fiche-nom",         employe.nom);
   setTxt("fiche-poste",       employe.poste);
   setTxt("fiche-periode",     periode);
@@ -260,20 +226,14 @@ function afficherFichePaie(employe, periode, paie) {
 }
 
 // ══════════════════════════════════════════
-// OUVRIR LE BULLETIN A4 DANS UN NOUVEL ONGLET
+// IMPRIMER
 // ══════════════════════════════════════════
 window.imprimerFiche = function () {
   const d = window._bulletinData;
   if (!d) return;
   const { employe, periode, paie } = d;
-
-  // Formatage période lisible
   const [annee, mois] = periode.split("-");
   const moisNom = new Date(annee, mois - 1).toLocaleString("fr-FR", { month: "long", year: "numeric" });
-
-  const f = (n) => n.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
-
-  // Ouvre le template et injecte les données via localStorage
   const data = JSON.stringify({ employe, periode: moisNom, paie });
   localStorage.setItem("bulletin_data", data);
   window.open("../pages/bulletin-print.html", "_blank");
@@ -318,18 +278,18 @@ if (formPaie) {
   formPaie.addEventListener("submit", (e) => {
     e.preventDefault();
 
-    const select  = document.getElementById("select-employe");
-    const option  = select.options[select.selectedIndex];
+    const select = document.getElementById("select-employe");
+    const option = select.options[select.selectedIndex];
     if (!option.value) { alert("Sélectionnez un employé !"); return; }
 
-    const periode      = document.getElementById("periode").value;
-    const typeContrat  = document.getElementById("type-contrat")?.value   || "—";
-    const dateEntree   = document.getElementById("date-entree")?.value    || "";
-    const heuresSupp   = Number(document.getElementById("heures-supp").value  || 0);
-    const primes      = Number(document.getElementById("primes").value        || 0);
-    const gardes      = Number(document.getElementById("gardes").value        || 0);
-    const absences    = Number(document.getElementById("absences").value      || 0);
-    const joursRepas  = Number(document.getElementById("jours-repas").value   || 0);
+    const periode     = document.getElementById("periode").value;
+    const typeContrat = document.getElementById("type-contrat")?.value || "—";
+    const dateEntree  = document.getElementById("date-entree")?.value  || "";
+    const heuresSupp  = Number(document.getElementById("heures-supp").value || 0);
+    const primes      = Number(document.getElementById("primes").value      || 0);
+    const gardes      = Number(document.getElementById("gardes").value      || 0);
+    const absences    = Number(document.getElementById("absences").value    || 0);
+    const joursRepas  = Number(document.getElementById("jours-repas").value || 0);
     const avecTransp  = document.getElementById("avec-transport")?.checked ?? true;
 
     const salaireBase = Number(option.dataset.salaire);
@@ -339,6 +299,8 @@ if (formPaie) {
 
     afficherFichePaie({
       nom:        option.dataset.nom,
+      prenom:     option.dataset.prenom,   // ← transmis à window._ficheEmploye
+      email:      option.dataset.email,    // ← transmis à window._ficheEmploye
       poste:      option.dataset.poste,
       matricule:  option.dataset.matricule,
       nss:        option.dataset.nss,
