@@ -1,3 +1,4 @@
+
 <!-- ================================================================
      pages/fiche-paie.html — MyPaie Application
      Génération et affichage de la fiche de paie
@@ -347,20 +348,48 @@
       </div>
       <p class="fiche-mention">Conservez ce bulletin de paie sans limitation de durée</p>
 
-      <!-- Actions -->
+      <!-- ══ ACTIONS ══ -->
       <div class="fiche-actions">
         <button class="btn btn-vert"     id="btn-sauvegarder">💾 Sauvegarder</button>
         <button class="btn btn-primaire" onclick="imprimerFiche()">🖨️ Imprimer</button>
+        <!-- ✉️ BOUTON EMAIL -->
+        <button class="btn btn-email" id="btn-envoyer-email">📧 Envoyer par email</button>
       </div>
 
     </div><!-- fin #fiche-paie -->
   </main>
 
+  <!-- ── EmailJS SDK ── -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
   <script type="module">
     import "../js/paie.js";
     import { deconnexion } from "../js/auth.js";
+    import { envoyerFicheParEmail } from "../js/email-paie.js";
+
     document.getElementById("btn-logout").addEventListener("click", deconnexion);
     document.getElementById("fiche-date").textContent = new Date().toLocaleDateString("fr-FR");
+
+    // ── Envoi email au clic sur le bouton ──
+    document.getElementById("btn-envoyer-email").addEventListener("click", async () => {
+
+      // Récupère les données de l'employé stockées par paie.js dans window._ficheEmploye
+      // (voir note importante ci-dessous pour paie.js)
+      const employe = window._ficheEmploye || {};
+
+      const fiche = {
+        moisAnnee:   document.getElementById("fiche-periode").textContent,
+        salaireBrut: document.getElementById("fiche-brut").textContent,
+        netAPayer:   document.getElementById("fiche-net").textContent,
+      };
+
+      if (!employe.email) {
+        alert("⚠️ Aucun email trouvé pour cet employé. Vérifiez sa fiche dans Employés.");
+        return;
+      }
+
+      await envoyerFicheParEmail(employe, fiche);
+    });
   </script>
 
 </body>
